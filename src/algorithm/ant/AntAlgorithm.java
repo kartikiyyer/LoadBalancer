@@ -13,6 +13,15 @@ public class AntAlgorithm {
 	 * TODO: This is a temporary structure which would later be stored in database.
 	 */
 	private HashMap<Integer, Double> pheromoneTable = new HashMap<Integer, Double>();
+	private double cpu;
+	private double hd;
+	private double ram;
+	
+	public AntAlgorithm(double cpu, double hd, double ram) {
+		this.cpu = cpu;
+		this.hd = hd;
+		this.ram = ram;
+	}
 	
 	public void initializePheromoneTable(double pheromone) {
 		int i;
@@ -85,16 +94,18 @@ public class AntAlgorithm {
 		int location = getLocationWithHighestPheromoneCount();
 		System.out.println("Location having highest pheromone count: " + location);
 		
+		
+		// Check whether there are sufficient amount of resource available on that location.
+		if(!(AntConstants.isCPUAvailable(location, CPU) && AntConstants.isHDAvailable(location, HD) && AntConstants.isRAMAvailable(location, RAM))) {
+			// If not decrease the pheromone count of that location and start the search again.
+			location = antBasedControl();
+		}
+				
 		return location;
 	}
 	
 	
 	public static void main(String[] args) {
-		AntAlgorithm aa = new AntAlgorithm();
-		aa.initializePheromoneTable(AntConstants.PHEROMONE);
-		aa.printPheromoneTable();
-		
-		
 		
 	}
 } 
