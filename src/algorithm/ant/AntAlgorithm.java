@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 
 
 public class AntAlgorithm {
@@ -16,25 +17,59 @@ public class AntAlgorithm {
 	private double cpu;
 	private double hd;
 	private double ram;
+	private static AntAlgorithm antAlgorithm;
 	
-	public AntAlgorithm(double cpu, double hd, double ram) {
-		this.cpu = cpu;
-		this.hd = hd;
-		this.ram = ram;
-	}
-	
-	public void initializePheromoneTable(double pheromone) {
+	private AntAlgorithm() {
 		int i;
 		// Inserting into pheromone table
-		for(i=1;i<=AntConstants.NO_OF_LOCATIONS;i++) {
-			pheromoneTable.put(i, pheromone);
+		for(i=1;i<=AntConstants.getInstance().getNoOfLocations();i++) {
+			pheromoneTable.put(i, AntConstants.getInstance().getPheromone());
 		}
 	}
 	
+	
+	public static synchronized AntAlgorithm getInstance() {
+		if(antAlgorithm == null) {
+			antAlgorithm = new AntAlgorithm();
+		}
+		return antAlgorithm;
+	}
+	
+	
+	public double getCpu() {
+		return cpu;
+	}
+
+
+	public void setCpu(double cpu) {
+		this.cpu = cpu;
+	}
+
+
+	public double getHd() {
+		return hd;
+	}
+
+
+	public void setHd(double hd) {
+		this.hd = hd;
+	}
+
+
+	public double getRam() {
+		return ram;
+	}
+
+
+	public void setRam(double ram) {
+		this.ram = ram;
+	}
+
+
 	public void printPheromoneTable() {
 		int i;
 		// Printing pheromone table
-		for(i=1;i<=AntConstants.NO_OF_LOCATIONS;i++) {
+		for(i=1;i<=AntConstants.getInstance().getNoOfLocations();i++) {
 			System.out.println(pheromoneTable.get(i));
 		}
 	}
@@ -42,13 +77,23 @@ public class AntAlgorithm {
 	
 	public int getLocationWithHighestPheromoneCount() {
 		Iterator<Entry<Integer, Double>> it = pheromoneTable.entrySet().iterator();
-		int maxValue = 0;
+		double maxValue = 0, minValue = AntConstants.getInstance().getPheromone();
 		int location = 0;
 		while (it.hasNext()) {
 			Map.Entry<Integer, Double> pair = (Map.Entry<Integer, Double>)it.next();
 			if(pair.getValue() > maxValue) {
+				maxValue = pair.getValue();
 				location = pair.getKey(); 
 			}
+			if(pair.getValue() < minValue) {
+				minValue = pair.getValue();
+			}
+		}
+		
+		// If all locations have the same value. Then randomly select one location.
+		if(maxValue == minValue) {
+			Random random = new Random();
+			location = random.nextInt(pheromoneTable.size()) + 1;
 		}
 		return location;
 	}
@@ -56,7 +101,7 @@ public class AntAlgorithm {
 	
 	public void increasePheromoneCountOfLocation(int location) {
 		
-		double p = (pheromoneTable.get(location) + AntConstants.DELTA_PHEROMONE) / (1 + AntConstants.DELTA_PHEROMONE);
+		double p = (pheromoneTable.get(location) + AntConstants.getInstance().getDeltaPheromone()) / (1 + AntConstants.getInstance().getDeltaPheromone());
 		
 		pheromoneTable.put(location, p);
 	}
@@ -64,7 +109,7 @@ public class AntAlgorithm {
 	
 	public void decreasePheromoneCountOfLocation(int location) {
 		
-		double p = pheromoneTable.get(location) / (1 + AntConstants.DELTA_PHEROMONE);
+		double p = pheromoneTable.get(location) / (1 + AntConstants.getInstance().getDeltaPheromone());
 		
 		pheromoneTable.put(location, p);
 	}
@@ -96,16 +141,15 @@ public class AntAlgorithm {
 		
 		
 		// Check whether there are sufficient amount of resource available on that location.
-		if(!(AntConstants.isCPUAvailable(location, CPU) && AntConstants.isHDAvailable(location, HD) && AntConstants.isRAMAvailable(location, RAM))) {
+		if(!(AntConstants.getInstance().isCPUAvailable(location, cpu) && AntConstants.getInstance().isHDAvailable(location, hd) && AntConstants.getInstance().isRAMAvailable(location, ram))) {
 			// If not decrease the pheromone count of that location and start the search again.
+			decreasePheromoneCountOfLocation(location);
 			location = antBasedControl();
 		}
-				
-		return location;
-	}
-	
-	
-	public static void main(String[] args) {
 		
+		// TODO: Check how this algorithm works. If not able to distribute uniformly, uncomment below code.
+		decreasePheromoneCountOfLocation(location);
+		
+		return location;
 	}
 } 
