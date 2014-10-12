@@ -7,7 +7,7 @@ public class AntConstants {
 	private double pheromone = 0.5;
 	private double deltaPheromone;
 	private HashMap<Integer, String> locations = new HashMap<Integer, String>();
-	private String server = "ubuntu-mc-serve";
+	private String server = "ubuntu-mc-serve.cloudapp.net";
 	private HashMap<Integer, Integer> locationRequestCount = new HashMap<Integer, Integer>();
 	
 	private HashMap<Integer, Double> locationCPU = new HashMap<Integer, Double>();
@@ -22,9 +22,9 @@ public class AntConstants {
 		
 		locations.put(1, "ubuntu-mc-1.cloudapp.net");
 		locations.put(2, "ubuntu-mc-2.cloudapp.net");
-		locations.put(3, "ubuntu-mc-3.cloudapp.net");
-		locations.put(4, "ubuntu-mc-4.cloudapp.net");
-		locations.put(5, "ubuntu-mc-5.cloudapp.net");		
+		//locations.put(3, "ubuntu-mc-3.cloudapp.net");
+		//locations.put(4, "ubuntu-mc-4.cloudapp.net");
+		//locations.put(5, "ubuntu-mc-5.cloudapp.net");		
 		
 		
 		locationRequestCount.put(1, 0);

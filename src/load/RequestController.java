@@ -100,11 +100,10 @@ public class RequestController {
 			    output.close();
 			}
 			
-			//HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
 			
 			status = connection.getResponseCode();
 			
-			System.out.println("This is the status from server: "+ status);
+			//System.out.println("This is the status from server: "+ status);
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
