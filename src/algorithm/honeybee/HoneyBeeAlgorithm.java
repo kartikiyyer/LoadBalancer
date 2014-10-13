@@ -1,5 +1,9 @@
 package algorithm.honeybee;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -15,7 +19,10 @@ public class HoneyBeeAlgorithm {
 	 * TODO: This is a temporary structure which would later be stored in database.
 	 */
 	private HashMap<Integer, Double> fitnessTable = new HashMap<Integer, Double>();
-	private HashMap<Integer, List<String>> reqResTimeLogTable = new HashMap<Integer, List<String>>();
+	@SuppressWarnings("rawtypes")
+	private HashMap<Integer, HashMap<Integer, List>> reqResTimeLogTable = new HashMap<Integer, HashMap<Integer, List>>();
+	@SuppressWarnings("rawtypes")
+	private HashMap<Integer, List> locationResponseTimeLogTable = new HashMap<Integer, List>();
 	
 	private double cpu;
 	private double hd;
@@ -144,13 +151,46 @@ public class HoneyBeeAlgorithm {
 	}*/
 	
 	
-	public HashMap<Integer, List<String>> getReqResTimeLogTable() {
-		return reqResTimeLogTable;
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void processTimeLogForRequest(int request,int location,int requestType) throws Exception{
+		String requestTimeStamp=new SimpleDateFormat("HH:mm:ss.SSS").format(Calendar.getInstance().getTime());
+		HashMap<Integer,List> reqTypeTimeStampHM=new HashMap<Integer,List>();
+		List locationAndRequestTimeStampAL=new ArrayList();
+		locationAndRequestTimeStampAL.add(0,location); //location
+		locationAndRequestTimeStampAL.add(1,requestTimeStamp); //request timestamp
+		locationAndRequestTimeStampAL.add(2,null); //response timestamp - default to null
+		locationAndRequestTimeStampAL.add(3,null); //time difference in seconds - default to  null
+		
+		reqTypeTimeStampHM.put(requestType, locationAndRequestTimeStampAL); //requesttype[key]-location n time [values-List]
+		
+		reqResTimeLogTable.put(request,reqTypeTimeStampHM);
 	}
-
-	public void setReqResTimeLogTable(
-			HashMap<Integer, List<String>> reqResTimeLogTable) {
-		this.reqResTimeLogTable = reqResTimeLogTable;
+	
+	public void processTimeLogForResponse(int request, String responseTimeStamp)throws Exception{
+		// uncomment all to make it work
+		/*List<String> resTimeStampLS=new ArrayList<String>();
+		resTimeStampLS.add(3,responseTimeStamp); //response timestamp
+		reqResTimeLogTable.put(request,resTimeStampLS);*/
+	}
+	
+	public void calculateResponseTime(int request, int location)throws Exception{
+		//uncomment all to make it work
+		/*try{
+			SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss.SSS"); 
+			Date d1 = format.parse(reqResTimeLogTable.get(request).get(2));
+		    Date d2 = format.parse(reqResTimeLogTable.get(request).get(3));
+		    long diffInMilliSeconds = d2.getTime() - d1.getTime();
+		    double diffSeconds = diffInMilliSeconds / 1000.0;
+		    System.out.println("Time in seconds: " + diffSeconds + " seconds.");  
+		    locationResponseTimeLogTable.put(Integer.parseInt(reqResTimeLogTable.get(request).get(0)), diffSeconds);
+		    
+		}catch(Exception e){
+			e.printStackTrace();
+		}*/
+	}
+	
+	public void processFitnessValue(int location)throws Exception{
+		
 	}
 
 	/**
