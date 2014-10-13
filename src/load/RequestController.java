@@ -1,11 +1,14 @@
 package load;
 
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -17,6 +20,8 @@ import javax.ws.rs.core.MediaType;
 
 import algorithm.ant.AntAlgorithm;
 import algorithm.ant.AntConstants;
+import algorithm.honeybee.HoneyBeeAlgorithm;
+import algorithm.honeybee.HoneyBeeConstants;
 
 @Path("/")
 public class RequestController {	
@@ -34,59 +39,86 @@ public class RequestController {
 	@POST
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.TEXT_PLAIN)
-	public String processRequestParameter(@FormParam("cpu") double cpu, @FormParam("storage") double storage, @FormParam("ram") double ram, @FormParam("time") double time) {
-		AntAlgorithm aa = AntAlgorithm.getInstance();
-		aa.setCpu(cpu);
-		aa.setHd(storage);
-		aa.setRam(ram);
-		//aa.printPheromoneTable();
-		
-		System.out.println("After request");	
-		
-		int location = aa.antBasedControl();
-		System.out.println(AntConstants.getInstance().getDeltaPheromone());
-		// Increase amount of resources allocated.
-		AntConstants.getInstance().increaseLocationDetails(location, cpu, storage, ram);
-		// Decrease amount of allocated resources.
-		//AntConstants.decreaseLocationMaxDetails(location, cpu, storage, ram);
-		
-		System.out.println(location);	
-		System.out.println(AntConstants.getInstance().getLocationCPU());
-		System.out.println(AntConstants.getInstance().getLocationHD());
-		System.out.println(AntConstants.getInstance().getLocationRAM());
-		
-		System.out.println(AntConstants.getInstance().getLocationMaxCPU());
-		System.out.println(AntConstants.getInstance().getLocationMaxHD());
-		System.out.println(AntConstants.getInstance().getLocationMaxRAM());
-		System.out.println();
-		aa.printPheromoneTable();
-		
-		request ++;
-		
-		int status = forwardRequest(AntConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time));
-		
-		if(status == 200) {
-			AntConstants.getInstance().increaseLocationRequestCount(location);
+	public String processRequestParameter(@FormParam("cpu") double cpu, @FormParam("storage") double storage, @FormParam("ram") double ram, @FormParam("time") double time, @FormParam ("algoIdentifier") int algoIdentifier) {
+		if(algoIdentifier==1){
+			AntAlgorithm aa = AntAlgorithm.getInstance();
+			aa.setCpu(cpu);
+			aa.setHd(storage);
+			aa.setRam(ram);
+			//aa.printPheromoneTable();
+			
+			System.out.println("After request");	
+			
+			int location = aa.antBasedControl();
+			System.out.println(AntConstants.getInstance().getDeltaPheromone());
+			// Increase amount of resources allocated.
+			AntConstants.getInstance().increaseLocationDetails(location, cpu, storage, ram);
+			// Decrease amount of allocated resources.
+			//AntConstants.decreaseLocationMaxDetails(location, cpu, storage, ram);
+			
+			System.out.println(location);	
+			System.out.println(AntConstants.getInstance().getLocationCPU());
+			System.out.println(AntConstants.getInstance().getLocationHD());
+			System.out.println(AntConstants.getInstance().getLocationRAM());
+			
+			System.out.println(AntConstants.getInstance().getLocationMaxCPU());
+			System.out.println(AntConstants.getInstance().getLocationMaxHD());
+			System.out.println(AntConstants.getInstance().getLocationMaxRAM());
+			System.out.println();
+			aa.printPheromoneTable();
+			
+			request ++;
+			
+			int status = forwardRequest(AntConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier);
+			
+			if(status == 200) {
+				AntConstants.getInstance().increaseLocationRequestCount(location);
+			}
 		}
+		else if(algoIdentifier==2){
+			HoneyBeeAlgorithm hbAlgorithm=HoneyBeeAlgorithm.getInstance();
+			int location=hbAlgorithm.processHoneyBeeAlgorithm(cpu,storage,ram,time);
+			request ++;
+			int status = forwardRequest(HoneyBeeConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier);
+			
+			if(status == 200) {
+				String requestTimeStamp=new SimpleDateFormat("HH:mm:ss.SSS").format(Calendar.getInstance().getTime());
+				HashMap<Integer, List<String>> requestTimeHM=new HashMap<Integer, List<String>>();
+				List<String> reqTimeStampLS=new ArrayList<String>();
+				reqTimeStampLS.add(0,requestTimeStamp);
+				requestTimeHM.put(request,reqTimeStampLS);
+				//TODO need to work on this...store timestamp logtable here itself...
+				HoneyBeeAlgorithm.getInstance().setReqResTimeLogTable(requestTimeHM);
+				
+				HoneyBeeConstants.getInstance().increaseLocationRequestCount(location);
+			}
+		}
+		
 		
 		return "";
 	}
 	
-	
-	public int forwardRequest(String location, String locationId, String request, String cpu, String storage, String ram, String time) {
+	public static int forwardRequest(String location, String locationId, String request, String cpu, String storage, String ram, String time, int algoIdentifier) {
 		String url = "http://"+location+":8080/Instance/request";
 		String charset = "UTF-8";
 		int status = 0;
-		
+		String serverName="";
 		try {
-			String query = String.format("server=%s&location=%s&request=%s&cpu=%s&storage=%s&ram=%s&time=%s", 
-				URLEncoder.encode(AntConstants.getInstance().getServer(), charset),
-				URLEncoder.encode(locationId, charset),
-				URLEncoder.encode(request, charset),
-				URLEncoder.encode(cpu, charset), 
-			    URLEncoder.encode(storage, charset),
-			    URLEncoder.encode(ram, charset),
-			    URLEncoder.encode(time, charset));
+			if(algoIdentifier==1){
+				serverName=AntConstants.getInstance().getServer();
+			}else if(algoIdentifier==2){
+				serverName=HoneyBeeConstants.getInstance().getServer();
+			}
+			
+			String query = String.format("server=%s&location=%s&request=%s&cpu=%s&storage=%s&ram=%s&time=%s&algoIdentifier=%s", 
+			URLEncoder.encode(serverName, charset),
+			URLEncoder.encode(locationId, charset),
+			URLEncoder.encode(request, charset),
+			URLEncoder.encode(cpu, charset), 
+			URLEncoder.encode(storage, charset),
+			URLEncoder.encode(ram, charset),
+			URLEncoder.encode(time, charset),
+			URLEncoder.encode(String.valueOf(algoIdentifier), charset));
 			
 			HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
 			connection.setRequestMethod("POST");
@@ -118,28 +150,64 @@ public class RequestController {
 	@POST
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.TEXT_PLAIN)
-	public String processResponseParameter(@FormParam("location") int location, @FormParam("request") int request, @FormParam("cpu") double cpu, @FormParam("storage") double storage, @FormParam("ram") double ram) {
-		AntAlgorithm aa = AntAlgorithm.getInstance();
+	public String processResponseParameter(@FormParam("location") int location, @FormParam("request") int request, @FormParam("cpu") double cpu, @FormParam("storage") double storage, @FormParam("ram") double ram, @FormParam("algoIdentifier") int algoIdentifier) {
 		
-		// Decrease amount of resources allocated.
-		AntConstants.getInstance().decreaseLocationDetails(location, cpu, storage, ram);
-		aa.increasePheromoneCountOfLocation(location);
+		if(algoIdentifier==1){
+			AntAlgorithm aa = AntAlgorithm.getInstance();
+			
+			// Decrease amount of resources allocated.
+			AntConstants.getInstance().decreaseLocationDetails(location, cpu, storage, ram);
+			aa.increasePheromoneCountOfLocation(location);
+			
+			System.out.println("After response");	
+			
+			System.out.println(location);	
+			System.out.println("Request: " + request);
+			System.out.println(AntConstants.getInstance().getLocationCPU());
+			System.out.println(AntConstants.getInstance().getLocationHD());
+			System.out.println(AntConstants.getInstance().getLocationRAM());
+			
+			System.out.println(AntConstants.getInstance().getLocationMaxCPU());
+			System.out.println(AntConstants.getInstance().getLocationMaxHD());
+			System.out.println(AntConstants.getInstance().getLocationMaxRAM());
+			System.out.println();
+			aa.printPheromoneTable();
+			
+			AntConstants.getInstance().decreaseLocationRequestCount(location);
+		}else if(algoIdentifier==2){
+			
+			//TODO need to work on this...store timestamp logtable here itself...
+			String responseTimeStamp=new SimpleDateFormat("HH:mm:ss.SSS").format(Calendar.getInstance().getTime());
+			HashMap<Integer, List<String>> responseTimeHM=new HashMap<Integer, List<String>>();
+			List<String> resTimeStampLS=new ArrayList<String>();
+			resTimeStampLS.add(1,responseTimeStamp);
+			responseTimeHM.put(request,resTimeStampLS);
+			HoneyBeeAlgorithm.getInstance().setReqResTimeLogTable(responseTimeHM);
+			
+			
+			HoneyBeeAlgorithm hbalgorithm = HoneyBeeAlgorithm.getInstance();
+			
+			// Decrease amount of resources allocated.
+			HoneyBeeConstants.getInstance().decreaseLocationDetails(location, cpu, storage, ram);
+//			hbalgorithm.increaseFitnessValueOfLocation(location);
+			
+			System.out.println("After response");	
+			
+			System.out.println(location);	
+			System.out.println("Request: " + request);
+			System.out.println(AntConstants.getInstance().getLocationCPU());
+			System.out.println(AntConstants.getInstance().getLocationHD());
+			System.out.println(AntConstants.getInstance().getLocationRAM());
+			
+			System.out.println(AntConstants.getInstance().getLocationMaxCPU());
+			System.out.println(AntConstants.getInstance().getLocationMaxHD());
+			System.out.println(AntConstants.getInstance().getLocationMaxRAM());
+			System.out.println();
+			hbalgorithm.printFitnessTable();
+			
+			HoneyBeeConstants.getInstance().decreaseLocationRequestCount(location);
+		}
 		
-		System.out.println("After response");	
-		
-		System.out.println(location);	
-		System.out.println("Request: " + request);
-		System.out.println(AntConstants.getInstance().getLocationCPU());
-		System.out.println(AntConstants.getInstance().getLocationHD());
-		System.out.println(AntConstants.getInstance().getLocationRAM());
-		
-		System.out.println(AntConstants.getInstance().getLocationMaxCPU());
-		System.out.println(AntConstants.getInstance().getLocationMaxHD());
-		System.out.println(AntConstants.getInstance().getLocationMaxRAM());
-		System.out.println();
-		aa.printPheromoneTable();
-		
-		AntConstants.getInstance().decreaseLocationRequestCount(location);
 		
 		// TODO: Send response to client. Need to figure out how will this be processed by client.
 		
