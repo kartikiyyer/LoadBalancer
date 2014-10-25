@@ -10,6 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Map.Entry;
+import java.util.TreeMap;
+
+import org.apache.catalina.Server;
+import org.apache.catalina.startup.Tomcat.ExistingStandardWrapper;
 
 public class HoneyBeeAlgorithm {
 
@@ -18,22 +22,27 @@ public class HoneyBeeAlgorithm {
 	 * Fitness table
 	 * TODO: This is a temporary structure which would later be stored in database.
 	 */
-	private HashMap<Integer, Double> fitnessTable = new HashMap<Integer, Double>();
+//	private HashMap<Integer, Double> fitnessTable = new HashMap<Integer, Double>();
 	@SuppressWarnings("rawtypes")
 	private HashMap<Integer, HashMap<Integer, List>> reqResTimeLogTable = new HashMap<Integer, HashMap<Integer, List>>();
 	@SuppressWarnings("rawtypes")
-	private HashMap<Integer, List> locationResponseTimeLogTable = new HashMap<Integer, List>();
+	public HashMap<Integer, HashMap<Integer,List>> locationResponseTimeLogTable = new HashMap<Integer, HashMap<Integer,List>>();
 	
+	private int request=0;
 	private double cpu;
 	private double hd;
 	private double ram;
+	private int requestType;
+	private int tempCount=1;
+	private boolean flag=false;
+	
 	private static HoneyBeeAlgorithm honeybeeAlgorithm;
 	
 	private HoneyBeeAlgorithm() {
 		int i;
 		// Inserting into fitness table
 		for(i=1;i<=HoneyBeeConstants.getInstance().getNoOfLocations();i++) {
-			fitnessTable.put(i, HoneyBeeConstants.getInstance().getFitness());
+//			fitnessTable.put(i, HoneyBeeConstants.getInstance().getFitness());
 		}
 	}
 	
@@ -72,66 +81,133 @@ public class HoneyBeeAlgorithm {
 	public void setRam(double ram) {
 		this.ram = ram;
 	}
+	
+	public int getRequestType() {
+		return requestType;
+	}
 
-	public int processHoneyBeeAlgorithm(double cpu, double storage, double ram, double time){
+	public void setRequestType(int requestType) {
+		this.requestType = requestType;
+	}
+	
+	
+	public int getRequest() {
+		return request;
+	}
 
-		HoneyBeeAlgorithm hbAlgorithm = HoneyBeeAlgorithm.getInstance();
-		hbAlgorithm.setCpu(cpu);
-		hbAlgorithm.setHd(storage);
-		hbAlgorithm.setRam(ram);
+	public void setRequest(int request) {
+		this.request = request;
+	}
+	
+	
+	public int processHoneyBeeAlgorithm(double cpu, double storage, double ram, double time,int requestType){
+
+		HoneyBeeAlgorithm.getInstance().setCpu(cpu);
+		HoneyBeeAlgorithm.getInstance().setHd(storage);
+		HoneyBeeAlgorithm.getInstance().setRam(ram);
+		HoneyBeeAlgorithm.getInstance().setRequestType(requestType);
+		
 		//aa.printPheromoneTable();
 		
 		System.out.println("After request");	
+		//insufficientResourceLocation will be zero or have no value right now
+		ArrayList<Integer> insufficientResourceLocation=new ArrayList<Integer>();
+		int location = HoneyBeeAlgorithm.getInstance().honeybeeBasedControl(insufficientResourceLocation);
 		
-		int location = hbAlgorithm.honeybeeBasedControl();
-//		System.out.println(AntConstants.getInstance().getDeltaPheromone());
-		// Increase amount of resources allocated.
-		HoneyBeeConstants.getInstance().increaseLocationDetails(location, cpu, storage, ram);
+		//reduce the allocated resource
+		HoneyBeeConstants.getInstance().increaseLocationDetails(location, HoneyBeeAlgorithm.getInstance().getCpu(), HoneyBeeAlgorithm.getInstance().getHd(), HoneyBeeAlgorithm.getInstance().getRam());
+		System.out.println("Location having highest Fitness: " + location);
 		
-		System.out.println(location);	
-		System.out.println(HoneyBeeConstants.getInstance().getLocationCPU());
-		System.out.println(HoneyBeeConstants.getInstance().getLocationHD());
-		System.out.println(HoneyBeeConstants.getInstance().getLocationRAM());
 		
-		System.out.println(HoneyBeeConstants.getInstance().getLocationMaxCPU());
-		System.out.println(HoneyBeeConstants.getInstance().getLocationMaxHD());
-		System.out.println(HoneyBeeConstants.getInstance().getLocationMaxRAM());
-		System.out.println();
+		System.out.println("-------------------------------------------------------");
+		System.out.println("Selected Location details: "+location);
+		System.out.println("Location CPU: "+HoneyBeeConstants.getInstance().getLocationCPU()+" occupied out of "+HoneyBeeConstants.getInstance().getLocationMaxCPU());
+		System.out.println("Location HD: "+HoneyBeeConstants.getInstance().getLocationHD()+" occupied out of "+HoneyBeeConstants.getInstance().getLocationMaxHD());
+		System.out.println("Location RAM: "+HoneyBeeConstants.getInstance().getLocationRAM()+" occupied out of "+HoneyBeeConstants.getInstance().getLocationMaxRAM());
+		
+		System.out.println("-------------------------------------------------------");
 //		hbAlgorithm.printFitnessTable();
 	
 		return location;
 	}
 
-	public void printFitnessTable() {
+	/*public void printFitnessTable() {
 		int i;
 		// Printing fitness table
 		for(i=1;i<=HoneyBeeConstants.getInstance().getNoOfLocations();i++) {
 			System.out.println(fitnessTable.get(i));
 		}
-	}
+	}*/
 	
 	
-	public int getLocationWithHighestFitnessValue() {
-		Iterator<Entry<Integer, Double>> it = fitnessTable.entrySet().iterator();
-		double maxValue = 0, minValue = HoneyBeeConstants.getInstance().getFitness();
-		int location = 0;
-		while (it.hasNext()) {
-			Map.Entry<Integer, Double> pair = (Map.Entry<Integer, Double>)it.next();
-			if(pair.getValue() > maxValue) {
-				maxValue = pair.getValue();
-				location = pair.getKey(); 
+	public int getLocationWithHighestFitnessValue(ArrayList<Integer> insufficientResourceLocation) {
+		// find the least avg time for this request type and pick that location id from locationResponseTimeLogTable
+		//iterate over outermost hashmap, get the avgtime value of particular request type from the inner map n arraylist
+		
+		int temp=0,location=1; //returning first since default value is 1 
+	    double tempMinAvgVal=0;
+	    HashMap<Integer, List> tempHM=new HashMap<Integer, List>();
+		Iterator<Entry<Integer, HashMap<Integer, List>>> it = locationResponseTimeLogTable.entrySet().iterator();
+		System.out.println("$$$$$$$$$$$insufficientResourceLocation: "+insufficientResourceLocation);
+		
+		if(locationResponseTimeLogTable.isEmpty()){
+			System.out.println("locationResponseTimeLogTable is empty..");
+			if(!(HoneyBeeConstants.getInstance().isCPUAvailable(location, HoneyBeeAlgorithm.getInstance().getCpu()) && HoneyBeeConstants.getInstance().isHDAvailable(location, HoneyBeeAlgorithm.getInstance().getHd()) && HoneyBeeConstants.getInstance().isRAMAvailable(location, HoneyBeeAlgorithm.getInstance().getRam()))) {
+				location++;
 			}
-			if(pair.getValue() < minValue) {
-				minValue = pair.getValue();
+			//put 0 in locationResponseTimeLogTable
+			ArrayList lst=new ArrayList<>();
+			HashMap<Integer,List> hmap=new HashMap<Integer,List>();
+			for(int tempVar=0;tempVar<5;tempVar++){
+				if(tempVar<2){
+					lst.add(0);
+				}
+				hmap.put(tempVar, lst);
 			}
+			
+			for(int tempVar=1;tempVar<=HoneyBeeConstants.getInstance().getNoOfLocations();tempVar++){
+				locationResponseTimeLogTable.put(tempVar, hmap);
+			}
+			
+			return location;
+		}
+		else{
+			System.out.println("locationResponseTimeLogTable is not empty...");
+			while (it.hasNext()) { //print sysouts in below loops to find the BUG
+				Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
+					if(!insufficientResourceLocation.isEmpty()){
+						if(!insufficientResourceLocation.contains(pair.getKey())){
+							System.out.println("@@@@@@@@@@other than insufficient location data....");
+							tempHM=pair.getValue();
+							if(temp==0){
+								tempMinAvgVal=Double.parseDouble(tempHM.get(requestType).get(0).toString());
+								location=pair.getKey();
+								temp++;
+							}
+							else{
+								if(Double.parseDouble(tempHM.get(requestType).get(0).toString())<tempMinAvgVal){
+									location=pair.getKey();
+								}
+							}
+						}
+					}
+					else{
+						System.out.println("locationResponseTimeLogTable "+locationResponseTimeLogTable);
+						HashMap<Double, Integer> sampleHM=new HashMap<Double,Integer>();
+						for(int val=1;val<=HoneyBeeConstants.getInstance().getNoOfLocations();val++){
+							System.out.println("response time for location "+val+"  "+locationResponseTimeLogTable.get(val).get(requestType).get(0));
+							sampleHM.put(Double.parseDouble(locationResponseTimeLogTable.get(val).get(requestType).get(0).toString()), val);
+						}
+						TreeMap<Double, Integer> treeMap = new TreeMap<Double, Integer>(sampleHM);
+						location=treeMap.get(treeMap.firstKey());
+						return location;
+					}
+				
+			}
+			System.out.println("returning location "+location +" ...");
+			return location;
 		}
 		
-		// If all locations have the same value. Then randomly select one location.
-		if(maxValue == minValue) {
-			Random random = new Random();
-			location = random.nextInt(fitnessTable.size()) + 1;
-		}
-		return location;
 	}
 	
 	
@@ -164,29 +240,51 @@ public class HoneyBeeAlgorithm {
 		reqTypeTimeStampHM.put(requestType, locationAndRequestTimeStampAL); //requesttype[key]-location n time [values-List]
 		
 		reqResTimeLogTable.put(request,reqTypeTimeStampHM);
+		System.out.println("reqResTimeLogTable in REQUEST: "+reqResTimeLogTable);
 	}
 	
-	public void processTimeLogForResponse(int request, String responseTimeStamp)throws Exception{
-		// uncomment all to make it work
-		/*List<String> resTimeStampLS=new ArrayList<String>();
-		resTimeStampLS.add(3,responseTimeStamp); //response timestamp
-		reqResTimeLogTable.put(request,resTimeStampLS);*/
+	public void processTimeLogForResponse(int request, String responseTimeStamp, int requestType)throws Exception{
+		System.out.println("reqResTimeLogTable in response: "+reqResTimeLogTable);
+		reqResTimeLogTable.get(request).get(requestType).set(2, responseTimeStamp);
+		System.out.println("reqResTimeLogTable after reset in response: "+reqResTimeLogTable);
 	}
 	
-	public void calculateResponseTime(int request, int location)throws Exception{
-		//uncomment all to make it work
-		/*try{
+	public void calculateResponseTime(int request, int location,int requestType)throws Exception{
+		try{
 			SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss.SSS"); 
-			Date d1 = format.parse(reqResTimeLogTable.get(request).get(2));
-		    Date d2 = format.parse(reqResTimeLogTable.get(request).get(3));
+			Date d1 = format.parse(reqResTimeLogTable.get(request).get(requestType).get(1).toString());
+		    Date d2 = format.parse(reqResTimeLogTable.get(request).get(requestType).get(2).toString());
 		    long diffInMilliSeconds = d2.getTime() - d1.getTime();
 		    double diffSeconds = diffInMilliSeconds / 1000.0;
 		    System.out.println("Time in seconds: " + diffSeconds + " seconds.");  
-		    locationResponseTimeLogTable.put(Integer.parseInt(reqResTimeLogTable.get(request).get(0)), diffSeconds);
+		    reqResTimeLogTable.get(request).get(requestType).set(3, diffSeconds);
 		    
+		    HashMap<Integer,List> avgResponseTimeTempHM=new HashMap<Integer,List>();
+		    List avgResponseTimeAL=new ArrayList();
+		    avgResponseTimeAL.add(0,diffSeconds);
+		    avgResponseTimeAL.add(1,1);
+		    avgResponseTimeTempHM.put(requestType, avgResponseTimeAL);
+//		    Object value = locationResponseTimeLogTable.get(location);
+		    if (locationResponseTimeLogTable.get(location) == null) {
+		        locationResponseTimeLogTable.put(location, avgResponseTimeTempHM);
+		    }
+		    else{
+//		    	Object tempValue = locationResponseTimeLogTable.get(location).get(requestType);
+		    	if(locationResponseTimeLogTable.get(location).get(requestType) == null){
+		    		locationResponseTimeLogTable.put(location, avgResponseTimeTempHM);
+		    	}
+		    	else{
+		    		Double newAvgResponseTime=(Double.parseDouble(locationResponseTimeLogTable.get(location).get(requestType).get(0).toString())+diffSeconds)/(Integer.parseInt(locationResponseTimeLogTable.get(location).get(requestType).get(1).toString())+1);
+		    		avgResponseTimeAL=new ArrayList();
+		    		avgResponseTimeAL.add(0,newAvgResponseTime);
+				    avgResponseTimeAL.add(1,Integer.parseInt(locationResponseTimeLogTable.get(location).get(requestType).get(1).toString())+1);
+				    avgResponseTimeTempHM.put(requestType, avgResponseTimeAL);
+				    locationResponseTimeLogTable.put(location,avgResponseTimeTempHM);
+		    	}
+		    }
 		}catch(Exception e){
 			e.printStackTrace();
-		}*/
+		}
 	}
 	
 	public void processFitnessValue(int location)throws Exception{
@@ -198,22 +296,65 @@ public class HoneyBeeAlgorithm {
 	 * @return
 	 */
 	
-	public int honeybeeBasedControl() {
-		
+	public int honeybeeBasedControl(ArrayList<Integer> insufficientResourceLocation) {
+		flag=false;
 		// Fetch the location with highest fitness value.
 		// This would be our candidate for processing request.
-		int location = getLocationWithHighestFitnessValue();
-		System.out.println("Location having highest Fitness: " + location);
+		int location = getLocationWithHighestFitnessValue(insufficientResourceLocation);
+		System.out.println("@@@@@@@@@@@@@@");
+		System.out.println("cpu required: "+HoneyBeeAlgorithm.getInstance().getCpu());
+		
+		/*//this is an extra check to  get out of recursion! by setting some value to tempCount
+		if((HoneyBeeConstants.getInstance().isCPUAvailable(location, HoneyBeeAlgorithm.getInstance().getCpu()) && HoneyBeeConstants.getInstance().isHDAvailable(location, HoneyBeeAlgorithm.getInstance().getHd()) && HoneyBeeConstants.getInstance().isRAMAvailable(location, HoneyBeeAlgorithm.getInstance().getRam()))) {
+			tempCount=-1;
+		}*/
 		
 		
 		// Check whether there are sufficient amount of resource available on that location.
-		if(!(HoneyBeeConstants.getInstance().isCPUAvailable(location, cpu) && HoneyBeeConstants.getInstance().isHDAvailable(location, hd) && HoneyBeeConstants.getInstance().isRAMAvailable(location, ram))) {
-			//keep the request waiting untill any server is free to serve this request
-			//TODO: enqueue the request
-			System.out.println("waiting for free server........");
+		if(!(HoneyBeeConstants.getInstance().isCPUAvailable(location, HoneyBeeAlgorithm.getInstance().getCpu()) && HoneyBeeConstants.getInstance().isHDAvailable(location, HoneyBeeAlgorithm.getInstance().getHd()) && HoneyBeeConstants.getInstance().isRAMAvailable(location, HoneyBeeAlgorithm.getInstance().getRam()))) {
+			//if sufficient resources not available then search for another free location
+			insufficientResourceLocation.add(location);
+			System.out.println("insufficient resources at location: "+insufficientResourceLocation);
+			/*location = honeybeeBasedControl(insufficientResourceLocation);
+			System.out.println("Searching for available resource server.......");*/
+			if(tempCount<=HoneyBeeConstants.getInstance().getNoOfLocations()){
+//				if(tempCount!=-1){
+					location = honeybeeBasedControl(insufficientResourceLocation); //TODO this recursion is causing trouble due to its internal running
+//					if(!insufficientResourceLocation.contains(location1) && flag==false/*tempCount>0*/){ //since tempCount++ is done after 'if' hence checked for value 1000 here
+//						System.out.println("after location1:  "+location);
+//						location=location1;
+//						tempCount=-999;
+//						flag=true;
+//					}
+					System.out.println("Searching for available resource server.......and tempCount is "+tempCount);
+					tempCount++;
+//				}
+			}
+			
+			//this condition is commented since it is ASSUMED that all the servers will never run out of resources to serve the request
+			/*if(tempCount>=HoneyBeeConstants.getInstance().getNoOfLocations()){
+				location=-1;
+				System.out.println("flushing insufficientResourceLocation...");
+				insufficientResourceLocation.clear();
+				tempCount=0;
+				try {
+					System.out.println("waiting for server to get free....");
+					Thread.sleep(1000);
+					location = honeybeeBasedControl(insufficientResourceLocation);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}*/
 		}
+		/*System.out.println("tempCount: "+tempCount+" and flag: "+flag);
+		if(tempCount==1 || flag==true){
+			//reduce the allocated resource
+			HoneyBeeConstants.getInstance().increaseLocationDetails(location, HoneyBeeAlgorithm.getInstance().getCpu(), HoneyBeeAlgorithm.getInstance().getHd(), HoneyBeeAlgorithm.getInstance().getRam());
+			System.out.println("Location having highest Fitness: " + location);
+			flag=false;
+		}*/
 		
-//		decreaseFitnessValueOfLocation(location);
 		return location;
 	}
 	

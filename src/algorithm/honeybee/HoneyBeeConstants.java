@@ -6,10 +6,10 @@ public class HoneyBeeConstants {
 
 
 	private int noOfLocations;
-	private double fitness = 5;
+//	private double fitness = 5;
 //	private double deltaPheromone;
 	private HashMap<Integer, String> locations = new HashMap<Integer, String>();
-	private String server = "ubuntu-mc-serve.cloudapp.net";
+	private String server = "localhost";
 	private HashMap<Integer, Integer> locationRequestCount = new HashMap<Integer, Integer>();
 	
 	private HashMap<Integer, Double> locationCPU = new HashMap<Integer, Double>();
@@ -31,9 +31,9 @@ public class HoneyBeeConstants {
 		
 		locationRequestCount.put(1, 0);
 		locationRequestCount.put(2, 0);
-		locationRequestCount.put(3, 0);
-		locationRequestCount.put(4, 0);
-		locationRequestCount.put(5, 0);
+//		locationRequestCount.put(3, 0);
+//		locationRequestCount.put(4, 0);
+//		locationRequestCount.put(5, 0);
 		
 		noOfLocations = locations.size();
 		
@@ -42,40 +42,40 @@ public class HoneyBeeConstants {
 		// Initialize configuration of each machine.
 		locationCPU.put(1, 0.3);
 		locationCPU.put(2, 0.3);
-		locationCPU.put(3, 0.3);
-		locationCPU.put(4, 0.3);
-		locationCPU.put(5, 0.3);	
+//		locationCPU.put(3, 0.3);
+//		locationCPU.put(4, 0.3);
+//		locationCPU.put(5, 0.3);	
 		
 		locationHD.put(1, 10.0);
 		locationHD.put(2, 10.0);
-		locationHD.put(3, 10.0);
-		locationHD.put(4, 10.0);
-		locationHD.put(5, 10.0);	
+//		locationHD.put(3, 10.0);
+//		locationHD.put(4, 10.0);
+//		locationHD.put(5, 10.0);	
 		
 		locationRAM.put(1, 10.0);
 		locationRAM.put(2, 10.0);
-		locationRAM.put(3, 10.0);
-		locationRAM.put(4, 10.0);
-		locationRAM.put(5, 10.0);	
+//		locationRAM.put(3, 10.0);
+//		locationRAM.put(4, 10.0);
+//		locationRAM.put(5, 10.0);	
 		
 		// Initialize max configuration of each machine that it can hold.
 		locationMaxCPU.put(1, 2.0);
 		locationMaxCPU.put(2, 2.0);
-		locationMaxCPU.put(3, 2.0);
-		locationMaxCPU.put(4, 2.0);
-		locationMaxCPU.put(5, 2.0);	
+//		locationMaxCPU.put(3, 2.0);
+//		locationMaxCPU.put(4, 2.0);
+//		locationMaxCPU.put(5, 2.0);	
 		
 		locationMaxHD.put(1, 300.0);
 		locationMaxHD.put(2, 300.0);
-		locationMaxHD.put(3, 300.0);
-		locationMaxHD.put(4, 300.0);
-		locationMaxHD.put(5, 300.0);	
+//		locationMaxHD.put(3, 300.0);
+//		locationMaxHD.put(4, 300.0);
+//		locationMaxHD.put(5, 300.0);	
 		
 		locationMaxRAM.put(1, 500.0);
 		locationMaxRAM.put(2, 500.0);
-		locationMaxRAM.put(3, 500.0);
-		locationMaxRAM.put(4, 500.0);
-		locationMaxRAM.put(5, 500.0);
+//		locationMaxRAM.put(3, 500.0);
+//		locationMaxRAM.put(4, 500.0);
+//		locationMaxRAM.put(5, 500.0);
 	}
 	
 	public static synchronized HoneyBeeConstants getInstance() {
@@ -89,9 +89,9 @@ public class HoneyBeeConstants {
 		return noOfLocations;
 	}
 
-	public double getFitness() {
+	/*public double getFitness() {
 		return fitness;
-	}
+	}*/
 
 	/*public double getDeltaPheromone() {
 		return deltaPheromone;

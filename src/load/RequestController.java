@@ -23,7 +23,7 @@ import algorithm.honeybee.HoneyBeeConstants;
 @Path("/")
 public class RequestController {	
 	
-	int request = 0;
+	int request=0;
 	
 	@Path("/request")
 	@GET
@@ -75,13 +75,19 @@ public class RequestController {
 		else if(algoIdentifier==1){
 			try{
 				HoneyBeeAlgorithm hbAlgorithm=HoneyBeeAlgorithm.getInstance();
-				int location=hbAlgorithm.processHoneyBeeAlgorithm(cpu,storage,ram,time);
-				request ++;
-				int status = forwardRequest(HoneyBeeConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
+				int location=hbAlgorithm.processHoneyBeeAlgorithm(cpu,storage,ram,time,requestType);
+				System.out.println("cpu "+HoneyBeeConstants.getInstance().getLocationCPU());
+				System.out.println("@@@@@@@@@@@@@@");
 				
+				HoneyBeeAlgorithm.getInstance().setRequest(HoneyBeeAlgorithm.getInstance().getRequest()+1);
+				request=HoneyBeeAlgorithm.getInstance().getRequest();
+//				request++;
+				System.out.println("request number: "+request);
+				System.out.println("Sending on location: "+HoneyBeeConstants.getInstance().getLocations().get(location));
+				//int status = forwardRequest(HoneyBeeConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
+				int status=200; //TODO temporary..since no actual servers...later on uncomment above line and comment this line
 				if(status == 200) {
 					HoneyBeeAlgorithm.getInstance().processTimeLogForRequest(request,location,requestType);
-					
 					HoneyBeeConstants.getInstance().increaseLocationRequestCount(location);
 				}
 			}catch(Exception e){
@@ -175,29 +181,31 @@ public class RequestController {
 			
 			try{
 				String responseTimeStamp=new SimpleDateFormat("HH:mm:ss.SSS").format(Calendar.getInstance().getTime());
-				HoneyBeeAlgorithm.getInstance().processTimeLogForResponse(request, responseTimeStamp);
+				System.out.println(""+request+"  "+responseTimeStamp+"  "+requestType);
+				HoneyBeeAlgorithm.getInstance().processTimeLogForResponse(request, responseTimeStamp, requestType);
 				
-				// Decrease amount of resources allocated.
+				// increase available resources.
+				System.out.println("location: "+location+"   CPU: "+cpu+"  STORAGE: "+storage+"   RAM: "+ram);
 				HoneyBeeConstants.getInstance().decreaseLocationDetails(location, cpu, storage, ram);
-				// TODO under progress....calculateResponseTime
-				HoneyBeeAlgorithm.getInstance().calculateResponseTime(request,location);
-				// TODO process fitness value
-				HoneyBeeAlgorithm.getInstance().processFitnessValue(location);
+				HoneyBeeAlgorithm.getInstance().calculateResponseTime(request,location,requestType);
+				
+//				HoneyBeeAlgorithm.getInstance().processFitnessValue(location);
 //				hbalgorithm.increaseFitnessValueOfLocation(location);
 				
 				System.out.println("After response");	
 				
 				System.out.println(location);	
 				System.out.println("Request: " + request);
-				System.out.println(AntConstants.getInstance().getLocationCPU());
-				System.out.println(AntConstants.getInstance().getLocationHD());
-				System.out.println(AntConstants.getInstance().getLocationRAM());
+				System.out.println(HoneyBeeConstants.getInstance().getLocationCPU());
+				System.out.println(HoneyBeeConstants.getInstance().getLocationHD());
+				System.out.println(HoneyBeeConstants.getInstance().getLocationRAM());
 				
-				System.out.println(AntConstants.getInstance().getLocationMaxCPU());
-				System.out.println(AntConstants.getInstance().getLocationMaxHD());
-				System.out.println(AntConstants.getInstance().getLocationMaxRAM());
+				System.out.println(HoneyBeeConstants.getInstance().getLocationMaxCPU());
+				System.out.println(HoneyBeeConstants.getInstance().getLocationMaxHD());
+				System.out.println(HoneyBeeConstants.getInstance().getLocationMaxRAM());
+				System.out.println("TimeLog: "+HoneyBeeAlgorithm.getInstance().locationResponseTimeLogTable);
 				System.out.println();
-				HoneyBeeAlgorithm.getInstance().printFitnessTable();
+//				HoneyBeeAlgorithm.getInstance().printFitnessTable();
 				
 				HoneyBeeConstants.getInstance().decreaseLocationRequestCount(location);
 			}catch(Exception e){
