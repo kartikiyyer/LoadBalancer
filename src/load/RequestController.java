@@ -1,11 +1,17 @@
 package load;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -14,6 +20,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import algorithm.ant.AntAlgorithm;
 import algorithm.ant.AntConstants;
@@ -28,7 +37,63 @@ public class RequestController {
 	@Path("/request")
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
-	public String sayPlainText() {		
+	public String sayPlainText() {	
+		
+		HashMap<Integer, String> locations = AntConstants.getInstance().getLocations();
+		
+		HashMap<Integer, Double> locationCPU = new HashMap<Integer, Double>();
+		HashMap<Integer, Double> locationHD = new HashMap<Integer, Double>();
+		HashMap<Integer, Double> locationRAM = new HashMap<Integer, Double>();
+		HashMap<Integer, Double> locationMaxCPU = new HashMap<Integer, Double>();
+		HashMap<Integer, Double> locationMaxHD = new HashMap<Integer, Double>();
+		HashMap<Integer, Double> locationMaxRAM = new HashMap<Integer, Double>();
+		
+		
+		Iterator<Map.Entry<Integer, String>> itr = locations.entrySet().iterator();
+		
+		while (itr.hasNext()) {
+	        Map.Entry<Integer, String> pairs = itr.next();
+	        System.out.println(pairs.getValue());
+		
+			String url = "http://"+pairs.getValue()+":8080/Instance/system-information";
+			String charset = "UTF-8";
+			int status = 0;
+
+			try {
+				HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+				connection.setRequestProperty("Accept-Charset", charset);
+				
+				status = connection.getResponseCode();
+				
+				if(status == 200) {
+					InputStream stream = connection.getInputStream();
+					InputStreamReader isReader = new InputStreamReader(stream ); 
+	
+					//put output stream into a string
+					BufferedReader br = new BufferedReader(isReader);
+					String systemInformation = br.readLine();
+					JSONParser parser = new JSONParser();
+					JSONObject obj = (JSONObject) parser.parse(systemInformation);
+					locationCPU.put(pairs.getKey(),Double.parseDouble((String) obj.get("cpu")));
+					locationHD.put(pairs.getKey(),Double.parseDouble((String) obj.get("hd")));
+					locationRAM.put(pairs.getKey(),Double.parseDouble((String) obj.get("ram")));
+					locationMaxCPU.put(pairs.getKey(),Double.parseDouble((String) obj.get("cpuMax")));
+					locationMaxHD.put(pairs.getKey(),Double.parseDouble((String) obj.get("hdMax")));
+					locationMaxRAM.put(pairs.getKey(),Double.parseDouble((String) obj.get("ramMax")));
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		// Initialize with the system information.
+		AntConstants.getInstance().initializeLocationDetails(locationCPU, locationHD, locationRAM, locationMaxCPU, locationMaxHD, locationMaxRAM);
+		// Initialize with the system information.
+		HoneyBeeConstants.getInstance().initializeLocationDetails(locationCPU, locationHD, locationRAM, locationMaxCPU, locationMaxHD, locationMaxRAM);
+				
+		System.out.println(AntConstants.getInstance().getLocationHD());
+		
 		return "hello";
 	}
 	
@@ -36,7 +101,7 @@ public class RequestController {
 	@POST
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.TEXT_PLAIN)
-	public String processRequestParameter(@FormParam("cpu") double cpu, @FormParam("storage") double storage, @FormParam("ram") double ram, @FormParam("time") double time, @FormParam ("algoIdentifier") int algoIdentifier,@FormParam("requestType") int requestType) {
+	public String processRequestParameter(@FormParam("cpu") double cpu, @FormParam("storage") double storage, @FormParam("ram") double ram, @FormParam("time") double time, @FormParam ("algoIdentifier") int algoIdentifier,@FormParam("requestType") int requestType, @FormParam("latitude") double latitude, @FormParam("longitude") double longitude) {
 		if(algoIdentifier==2){
 			AntAlgorithm aa = AntAlgorithm.getInstance();
 			aa.setCpu(cpu);
@@ -84,8 +149,8 @@ public class RequestController {
 //				request++;
 				System.out.println("request number: "+request);
 				System.out.println("Sending on location: "+HoneyBeeConstants.getInstance().getLocations().get(location));
-				//int status = forwardRequest(HoneyBeeConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
-				int status=200; //TODO temporary..since no actual servers...later on uncomment above line and comment this line
+				int status = forwardRequest(HoneyBeeConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
+				//int status=200; //TODO temporary..since no actual servers...later on uncomment above line and comment this line
 				if(status == 200) {
 					HoneyBeeAlgorithm.getInstance().processTimeLogForRequest(request,location,requestType);
 					HoneyBeeConstants.getInstance().increaseLocationRequestCount(location);

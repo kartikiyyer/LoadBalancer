@@ -9,7 +9,7 @@ public class HoneyBeeConstants {
 //	private double fitness = 5;
 //	private double deltaPheromone;
 	private HashMap<Integer, String> locations = new HashMap<Integer, String>();
-	private String server = "localhost";
+	private String server = "ubuntu-mc-serve.cloudapp.net";
 	private HashMap<Integer, Integer> locationRequestCount = new HashMap<Integer, Integer>();
 	
 	private HashMap<Integer, Double> locationCPU = new HashMap<Integer, Double>();
