@@ -28,6 +28,9 @@ import algorithm.ant.AntAlgorithm;
 import algorithm.ant.AntConstants;
 import algorithm.honeybee.HoneyBeeAlgorithm;
 import algorithm.honeybee.HoneyBeeConstants;
+import algorithm.location.LocationAwareAlgorithm;
+import algorithm.pso.PSOAlgorithm;
+import algorithm.pso.PSOConstants;
 
 @Path("/")
 public class RequestController {	
@@ -91,8 +94,18 @@ public class RequestController {
 		AntConstants.getInstance().initializeLocationDetails(locationCPU, locationHD, locationRAM, locationMaxCPU, locationMaxHD, locationMaxRAM);
 		// Initialize with the system information.
 		HoneyBeeConstants.getInstance().initializeLocationDetails(locationCPU, locationHD, locationRAM, locationMaxCPU, locationMaxHD, locationMaxRAM);
+		// Initialize with the system information.
+		PSOConstants.getInstance().initializeLocationDetails(locationCPU, locationHD, locationRAM, locationMaxCPU, locationMaxHD, locationMaxRAM);
 				
+		
+		System.out.println("Printing location details.");
+		System.out.println(AntConstants.getInstance().getLocationCPU());
 		System.out.println(AntConstants.getInstance().getLocationHD());
+		System.out.println(AntConstants.getInstance().getLocationRAM());
+		
+		System.out.println(AntConstants.getInstance().getLocationMaxCPU());
+		System.out.println(AntConstants.getInstance().getLocationMaxHD());
+		System.out.println(AntConstants.getInstance().getLocationMaxRAM());
 		
 		return "hello";
 	}
@@ -112,24 +125,18 @@ public class RequestController {
 			System.out.println("After request");	
 			
 			int location = aa.antBasedControl();
-			System.out.println(AntConstants.getInstance().getDeltaPheromone());
+			//System.out.println(AntConstants.getInstance().getDeltaPheromone());
 			// Increase amount of resources allocated.
 			AntConstants.getInstance().increaseLocationDetails(location, cpu, storage, ram);
 			// Decrease amount of allocated resources.
 			//AntConstants.decreaseLocationMaxDetails(location, cpu, storage, ram);
 			
-			System.out.println(location);	
-			System.out.println(AntConstants.getInstance().getLocationCPU());
-			System.out.println(AntConstants.getInstance().getLocationHD());
-			System.out.println(AntConstants.getInstance().getLocationRAM());
-			
-			System.out.println(AntConstants.getInstance().getLocationMaxCPU());
-			System.out.println(AntConstants.getInstance().getLocationMaxHD());
-			System.out.println(AntConstants.getInstance().getLocationMaxRAM());
-			System.out.println();
-			aa.printPheromoneTable();
-			
 			request ++;
+			
+			System.out.println("Request: "  + request + " would be sent to location: " + AntConstants.getInstance().getLocations().get(location));	
+			
+			System.out.println("Printing pheromone table.");
+			aa.printPheromoneTable();
 			
 			int status = forwardRequest(AntConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
 			
@@ -158,7 +165,39 @@ public class RequestController {
 			}catch(Exception e){
 				e.printStackTrace();
 			}
-			
+
+		}
+
+		//PSO Algorithm
+		else if(algoIdentifier == 4){
+			try{
+				PSOAlgorithm psoAlgorithm = PSOAlgorithm.getInstance();
+				int location = psoAlgorithm.runPSOAlgorithm(cpu,storage,ram,time,request);
+				request ++;
+				//int status = forwardRequest(PSOConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
+				int status = 200;
+				if(status == 200) {
+					PSOConstants.getInstance().increaseLocationRequestCount(location);
+				}
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+
+		}
+
+		else if(algoIdentifier == 3){
+			try{
+				LocationAwareAlgorithm locationAwareAlgorithm= LocationAwareAlgorithm.getInstance();
+				Double inputLocation[] = new Double[]{latitude,longitude};
+				int location=locationAwareAlgorithm.runLocationAwareAlgorithm(inputLocation);
+				System.out.println("location of server "  + location);
+				request ++;
+				int status = forwardRequest(HoneyBeeConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
+
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+
 		}
 		
 		
@@ -175,7 +214,12 @@ public class RequestController {
 				serverName=AntConstants.getInstance().getServer();
 			}else if(algoIdentifier==1){
 				serverName=HoneyBeeConstants.getInstance().getServer();
+			}else if(algoIdentifier==3){
+				serverName=HoneyBeeConstants.getInstance().getServer();
+			}else if(algoIdentifier==4){
+				serverName=HoneyBeeConstants.getInstance().getServer();
 			}
+			
 			
 			String query = String.format("server=%s&location=%s&request=%s&cpu=%s&storage=%s&ram=%s&time=%s&algoIdentifier=%s&requestType=%s", 
 			URLEncoder.encode(serverName, charset),
@@ -229,17 +273,7 @@ public class RequestController {
 			
 			System.out.println("After response");	
 			
-			System.out.println(location);	
-			System.out.println("Request: " + request);
-			System.out.println(AntConstants.getInstance().getLocationCPU());
-			System.out.println(AntConstants.getInstance().getLocationHD());
-			System.out.println(AntConstants.getInstance().getLocationRAM());
-			
-			System.out.println(AntConstants.getInstance().getLocationMaxCPU());
-			System.out.println(AntConstants.getInstance().getLocationMaxHD());
-			System.out.println(AntConstants.getInstance().getLocationMaxRAM());
-			System.out.println();
-			aa.printPheromoneTable();
+			System.out.println("Request: " + request + " served by location: " + AntConstants.getInstance().getLocations().get(location));
 			
 			AntConstants.getInstance().decreaseLocationRequestCount(location);
 		}else if(algoIdentifier==1){
@@ -277,6 +311,22 @@ public class RequestController {
 				e.printStackTrace();
 			}
 			
+		} else if(algoIdentifier==4){
+
+			try{
+				PSOAlgorithm psoAlgorithm = PSOAlgorithm.getInstance();
+
+				// Decrease amount of resources allocated.
+				psoAlgorithm.decreaseLocationDetails(location, cpu, storage, ram);
+				
+				System.out.println("After response");	
+				
+				System.out.println(location);	
+				System.out.println("Request: " + request);
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+
 		}
 		
 		

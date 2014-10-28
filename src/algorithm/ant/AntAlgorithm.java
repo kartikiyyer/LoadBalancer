@@ -70,7 +70,7 @@ public class AntAlgorithm {
 		int i;
 		// Printing pheromone table
 		for(i=1;i<=AntConstants.getInstance().getNoOfLocations();i++) {
-			System.out.println(pheromoneTable.get(i));
+			System.out.println("Location:" + i + " " + pheromoneTable.get(i));
 		}
 	}
 	
