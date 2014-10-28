@@ -27,6 +27,7 @@ public class HoneyBeeAlgorithm {
 	private HashMap<Integer, HashMap<Integer, List>> reqResTimeLogTable = new HashMap<Integer, HashMap<Integer, List>>();
 	@SuppressWarnings("rawtypes")
 	public HashMap<Integer, HashMap<Integer,List>> locationResponseTimeLogTable = new HashMap<Integer, HashMap<Integer,List>>();
+	public HashMap<Integer, HashMap<Integer,List>> locationAverageResponseTimeLogTable = new HashMap<Integer, HashMap<Integer,List>>();
 	
 	private int request=0;
 	private double cpu;
@@ -147,7 +148,7 @@ public class HoneyBeeAlgorithm {
 		int temp=0,location=1; //returning first since default value is 1 
 	    double tempMinAvgVal=0;
 	    HashMap<Integer, List> tempHM=new HashMap<Integer, List>();
-		Iterator<Entry<Integer, HashMap<Integer, List>>> it = locationResponseTimeLogTable.entrySet().iterator();
+		
 		System.out.println("$$$$$$$$$$$insufficientResourceLocation: "+insufficientResourceLocation);
 		
 		if(locationResponseTimeLogTable.isEmpty()){
@@ -156,23 +157,52 @@ public class HoneyBeeAlgorithm {
 				location++;
 			}
 			//put 0 in locationResponseTimeLogTable
-			ArrayList lst=new ArrayList<>();
+//			ArrayList lst=new ArrayList<>();
+			for(int respTempVar=1;respTempVar<=HoneyBeeConstants.getInstance().getNoOfLocations();respTempVar++){
 			HashMap<Integer,List> hmap=new HashMap<Integer,List>();
 			for(int tempVar=0;tempVar<5;tempVar++){
-				if(tempVar<2){
-					lst.add(0);
-				}
+//				if(tempVar<2){
+				ArrayList lst=new ArrayList<>();
+				/*lst.add(0);
+				lst.add(0);*/
+//				}
 				hmap.put(tempVar, lst);
 			}
 			
-			for(int tempVar=1;tempVar<=HoneyBeeConstants.getInstance().getNoOfLocations();tempVar++){
-				locationResponseTimeLogTable.put(tempVar, hmap);
+//			for(int respTempVar=1;respTempVar<=HoneyBeeConstants.getInstance().getNoOfLocations();respTempVar++){
+				locationResponseTimeLogTable.put(respTempVar, hmap);
 			}
+			
+			//
+			if(locationAverageResponseTimeLogTable.isEmpty()){
+				System.out.println("locationAverageResponseTimeLogTable is empty..");
+				if(!(HoneyBeeConstants.getInstance().isCPUAvailable(location, HoneyBeeAlgorithm.getInstance().getCpu()) && HoneyBeeConstants.getInstance().isHDAvailable(location, HoneyBeeAlgorithm.getInstance().getHd()) && HoneyBeeConstants.getInstance().isRAMAvailable(location, HoneyBeeAlgorithm.getInstance().getRam()))) {
+					location++;
+				}
+				//put 0 in locationAverageResponseTimeLogTable
+				for(int respAvgTempVar=1;respAvgTempVar<=HoneyBeeConstants.getInstance().getNoOfLocations();respAvgTempVar++){
+				HashMap<Integer,List> avghmap=new HashMap<Integer,List>();
+				for(int tempVar=0;tempVar<5;tempVar++){
+//					if(tempVar<2){
+					ArrayList avglst=new ArrayList<>();
+					avglst.add(0);
+					/*lst.add(0);
+					lst.add(0);*/
+//					}
+					avghmap.put(tempVar, avglst);
+				}
+				
+//				for(int respTempVar=1;respTempVar<=HoneyBeeConstants.getInstance().getNoOfLocations();respTempVar++){
+				locationAverageResponseTimeLogTable.put(respAvgTempVar, avghmap);
+				}
+			}
+			//
 			
 			return location;
 		}
 		else{
 			System.out.println("locationResponseTimeLogTable is not empty...");
+			Iterator<Entry<Integer, HashMap<Integer, List>>> it = locationAverageResponseTimeLogTable.entrySet().iterator();
 			while (it.hasNext()) { //print sysouts in below loops to find the BUG
 				Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
 					if(!insufficientResourceLocation.isEmpty()){
@@ -192,11 +222,11 @@ public class HoneyBeeAlgorithm {
 						}
 					}
 					else{
-						System.out.println("locationResponseTimeLogTable "+locationResponseTimeLogTable);
+						System.out.println("locationAverageResponseTimeLogTable "+locationAverageResponseTimeLogTable);
 						HashMap<Double, Integer> sampleHM=new HashMap<Double,Integer>();
 						for(int val=1;val<=HoneyBeeConstants.getInstance().getNoOfLocations();val++){
-							System.out.println("response time for location "+val+"  "+locationResponseTimeLogTable.get(val).get(requestType).get(0));
-							sampleHM.put(Double.parseDouble(locationResponseTimeLogTable.get(val).get(requestType).get(0).toString()), val);
+							System.out.println("average response time for location "+val+"  "+locationAverageResponseTimeLogTable.get(val).get(requestType).get(0));
+							sampleHM.put(Double.parseDouble(locationAverageResponseTimeLogTable.get(val).get(requestType).get(0).toString()), val);
 						}
 						TreeMap<Double, Integer> treeMap = new TreeMap<Double, Integer>(sampleHM);
 						location=treeMap.get(treeMap.firstKey());
@@ -258,30 +288,26 @@ public class HoneyBeeAlgorithm {
 		    double diffSeconds = diffInMilliSeconds / 1000.0;
 		    System.out.println("Time in seconds: " + diffSeconds + " seconds.");  
 		    reqResTimeLogTable.get(request).get(requestType).set(3, diffSeconds);
+		    System.out.println("reqResTimeLogTable after update:::::::::: "+reqResTimeLogTable);
 		    
-		    HashMap<Integer,List> avgResponseTimeTempHM=new HashMap<Integer,List>();
-		    List avgResponseTimeAL=new ArrayList();
-		    avgResponseTimeAL.add(0,diffSeconds);
-		    avgResponseTimeAL.add(1,1);
-		    avgResponseTimeTempHM.put(requestType, avgResponseTimeAL);
-//		    Object value = locationResponseTimeLogTable.get(location);
-		    if (locationResponseTimeLogTable.get(location) == null) {
-		        locationResponseTimeLogTable.put(location, avgResponseTimeTempHM);
-		    }
-		    else{
-//		    	Object tempValue = locationResponseTimeLogTable.get(location).get(requestType);
-		    	if(locationResponseTimeLogTable.get(location).get(requestType) == null){
-		    		locationResponseTimeLogTable.put(location, avgResponseTimeTempHM);
-		    	}
-		    	else{
-		    		Double newAvgResponseTime=(Double.parseDouble(locationResponseTimeLogTable.get(location).get(requestType).get(0).toString())+diffSeconds)/(Integer.parseInt(locationResponseTimeLogTable.get(location).get(requestType).get(1).toString())+1);
-		    		avgResponseTimeAL=new ArrayList();
-		    		avgResponseTimeAL.add(0,newAvgResponseTime);
-				    avgResponseTimeAL.add(1,Integer.parseInt(locationResponseTimeLogTable.get(location).get(requestType).get(1).toString())+1);
-				    avgResponseTimeTempHM.put(requestType, avgResponseTimeAL);
-				    locationResponseTimeLogTable.put(location,avgResponseTimeTempHM);
-		    	}
-		    }
+		    System.out.println("locationResponseTimeLogTable before update: "+locationResponseTimeLogTable);
+		    
+//		    		Double newAvgResponseTime=(Double.parseDouble(locationResponseTimeLogTable.get(location).get(requestType).get(0).toString())+diffSeconds)/(Integer.parseInt(locationResponseTimeLogTable.get(location).get(requestType).get(1).toString())+1);
+		    		
+//		    		System.out.println("$$$$$$$$$$$$$  "+locationResponseTimeLogTable.get(location).get(requestType));
+//				    locationResponseTimeLogTable.get(location).get(requestType).set(0, newAvgResponseTime);
+//				    locationResponseTimeLogTable.get(location).get(requestType).set(1, Integer.parseInt(locationResponseTimeLogTable.get(location).get(requestType).get(1).toString())+1);
+		    		locationResponseTimeLogTable.get(location).get(requestType).add(diffSeconds);
+		    		List tempCountList=new ArrayList<>();
+		    		tempCountList=locationResponseTimeLogTable.get(location).get(requestType);
+		    		double timeCalc=0;
+		    		for(int avgCalcCount=0;avgCalcCount<tempCountList.size();avgCalcCount++){
+		    			timeCalc+=Double.parseDouble(tempCountList.get(avgCalcCount).toString());
+		    		}
+		    		double avgTime=timeCalc/tempCountList.size();
+		    		locationAverageResponseTimeLogTable.get(location).get(requestType).set(0, avgTime);
+		    		System.out.println("Average Response Time For "+requestType+" at location "+location+" is "+locationAverageResponseTimeLogTable.get(location).get(requestType).get(0));
+		    		System.out.println("Number of request at location "+location+" for request type "+requestType+" : "+tempCountList.size());
 		}catch(Exception e){
 			e.printStackTrace();
 		}
