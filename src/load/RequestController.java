@@ -19,6 +19,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.json.simple.JSONObject;
@@ -336,4 +337,22 @@ public class RequestController {
 	}
 	
 	
+	@Path("/request/response-time")
+	@GET
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.TEXT_PLAIN)
+	public String processResponseTime(@QueryParam("algoIdentifier") int algoIndentifier) {
+		String result = "";
+		if(algoIndentifier == 1) {
+			
+		} else if(algoIndentifier == 2) {
+			
+		} else if(algoIndentifier == 3) {
+			
+		} else if(algoIndentifier == 4) {
+			
+		}
+		
+		return result;
+	}
 }
