@@ -40,6 +40,7 @@ import com.sun.management.OperatingSystemMXBean;
 
 import algorithm.ant.AntAlgorithm;
 import algorithm.ant.AntConstants;
+import algorithm.common.ZoneResolver;
 import algorithm.honeybee.HoneyBeeAlgorithm;
 import algorithm.honeybee.HoneyBeeConstants;
 import algorithm.location.LocationAwareAlgorithm;
@@ -131,7 +132,16 @@ public class RequestController {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String processRequestParameter(@FormParam("cpu") double cpu, @FormParam("storage") double storage, @FormParam("ram") double ram, @FormParam("time") double time, @FormParam ("algoIdentifier") int algoIdentifier,@FormParam("requestType") int requestType, @FormParam("latitude") double latitude, @FormParam("longitude") double longitude) {
 		int request = 0;
-		if(algoIdentifier==1){
+		
+		System.out.println("Start:"+ System.currentTimeMillis());
+		ZoneResolver locationAwareAlgorithm1= ZoneResolver.getInstance();
+		Double inputLocation1[] = new Double[]{latitude,longitude};
+		int zone=locationAwareAlgorithm1.runLocationAwareAlgorithm(inputLocation1);
+		System.out.println("location of server "  + zone);
+		
+		return ""+zone;
+		
+		/*if(algoIdentifier==1){
 			try{
 				System.out.println("Start:"+ System.currentTimeMillis());
 				HoneyBeeAlgorithm hbAlgorithm=HoneyBeeAlgorithm.getInstance();
@@ -234,7 +244,7 @@ public class RequestController {
 				}
 
 		
-		return "";
+		return "";*/
 	}
 	
 	public static int forwardRequest(String location, String locationId, String request, String cpu, String storage, String ram, String time, int algoIdentifier, int requestType) {
