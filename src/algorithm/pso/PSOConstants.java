@@ -17,8 +17,8 @@ public class PSOConstants {
 		
 		locations.put(1, "ubuntu-mc-1.cloudapp.net");
 		locations.put(2, "ubuntu-mc-2.cloudapp.net");
-		//locations.put(3, "localhost");
-		//locations.put(4, "localhost");
+		locations.put(3, "ubuntu-mc-3.cloudapp.net");
+		locations.put(4, "ubuntu-mc-4.cloudapp.net");
 		//locations.put(5, "localhost");		
 		
 		
@@ -26,7 +26,7 @@ public class PSOConstants {
 		locationRequestCount.put(2, 0);
 		locationRequestCount.put(3, 0);
 		locationRequestCount.put(4, 0);
-		locationRequestCount.put(5, 0);
+		//locationRequestCount.put(5, 0);
 		
 		noOfLocations = locations.size();
 	
@@ -39,19 +39,19 @@ public class PSOConstants {
 		locationMaxCPU.put(2, 2.0);
 		locationMaxCPU.put(3, 2.0);
 		locationMaxCPU.put(4, 2.0);
-		locationMaxCPU.put(5, 2.0);	
+		//locationMaxCPU.put(5, 2.0);	
 		
 		locationMaxHD.put(1, 300.0);
 		locationMaxHD.put(2, 300.0);
 		locationMaxHD.put(3, 300.0);
 		locationMaxHD.put(4, 300.0);
-		locationMaxHD.put(5, 300.0);	
+		//locationMaxHD.put(5, 300.0);	
 		
 		locationMaxRAM.put(1, 500.0);
 		locationMaxRAM.put(2, 500.0);
 		locationMaxRAM.put(3, 500.0);
 		locationMaxRAM.put(4, 500.0);
-		locationMaxRAM.put(5, 500.0);
+		//locationMaxRAM.put(5, 500.0);
 	}
 	
 	public static synchronized PSOConstants getInstance() {
@@ -90,7 +90,9 @@ public class PSOConstants {
 
 	public void initializeLocationDetails(HashMap<Integer, Double> locationCPU, HashMap<Integer, Double> locationHD, HashMap<Integer, Double> locationRAM,
 			HashMap<Integer, Double> locationMaxCPU, HashMap<Integer, Double> locationMaxHD, HashMap<Integer, Double> locationMaxRAM) {
-		
+		PSOAlgorithm.getInstance().currentCPUState = locationCPU;
+		PSOAlgorithm.getInstance().currentStorageState = locationHD;
+		PSOAlgorithm.getInstance().currentRAMState = locationRAM;
 		this.locationMaxCPU = locationMaxCPU;
 		this.locationMaxHD = locationMaxHD;
 		this.locationMaxRAM = locationMaxRAM;

@@ -4,14 +4,19 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.lang.management.ManagementFactory;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -22,22 +27,29 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import org.hyperic.sigar.CpuInfo;
+import org.hyperic.sigar.CpuTimer;
+import org.hyperic.sigar.FileSystem;
+import org.hyperic.sigar.FileSystemUsage;
+import org.hyperic.sigar.Sigar;
+import org.hyperic.sigar.SigarException;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+
+import com.sun.management.OperatingSystemMXBean;
 
 import algorithm.ant.AntAlgorithm;
 import algorithm.ant.AntConstants;
 import algorithm.honeybee.HoneyBeeAlgorithm;
 import algorithm.honeybee.HoneyBeeConstants;
 import algorithm.location.LocationAwareAlgorithm;
+import algorithm.location.LocationAwareConstants;
 import algorithm.pso.PSOAlgorithm;
 import algorithm.pso.PSOConstants;
 
 @Path("/")
 public class RequestController {	
-	
-	int request=0;
-	
+		
 	@Path("/request")
 	@GET
 	@Produces(MediaType.TEXT_PLAIN)
@@ -97,7 +109,9 @@ public class RequestController {
 		HoneyBeeConstants.getInstance().initializeLocationDetails(locationCPU, locationHD, locationRAM, locationMaxCPU, locationMaxHD, locationMaxRAM);
 		// Initialize with the system information.
 		PSOConstants.getInstance().initializeLocationDetails(locationCPU, locationHD, locationRAM, locationMaxCPU, locationMaxHD, locationMaxRAM);
-				
+		// Initialize with the system information.
+		LocationAwareConstants.getInstance().initializeLocationDetails(locationCPU, locationHD, locationRAM, locationMaxCPU, locationMaxHD, locationMaxRAM);
+						
 		
 		System.out.println("Printing location details.");
 		System.out.println(AntConstants.getInstance().getLocationCPU());
@@ -116,37 +130,10 @@ public class RequestController {
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.TEXT_PLAIN)
 	public String processRequestParameter(@FormParam("cpu") double cpu, @FormParam("storage") double storage, @FormParam("ram") double ram, @FormParam("time") double time, @FormParam ("algoIdentifier") int algoIdentifier,@FormParam("requestType") int requestType, @FormParam("latitude") double latitude, @FormParam("longitude") double longitude) {
-		if(algoIdentifier==2){
-			AntAlgorithm aa = AntAlgorithm.getInstance();
-			aa.setCpu(cpu);
-			aa.setHd(storage);
-			aa.setRam(ram);
-			//aa.printPheromoneTable();
-			
-			System.out.println("After request");	
-			
-			int location = aa.antBasedControl();
-			//System.out.println(AntConstants.getInstance().getDeltaPheromone());
-			// Increase amount of resources allocated.
-			AntConstants.getInstance().increaseLocationDetails(location, cpu, storage, ram);
-			// Decrease amount of allocated resources.
-			//AntConstants.decreaseLocationMaxDetails(location, cpu, storage, ram);
-			
-			request ++;
-			
-			System.out.println("Request: "  + request + " would be sent to location: " + AntConstants.getInstance().getLocations().get(location));	
-			
-			System.out.println("Printing pheromone table.");
-			aa.printPheromoneTable();
-			
-			int status = forwardRequest(AntConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
-			
-			if(status == 200) {
-				AntConstants.getInstance().increaseLocationRequestCount(location);
-			}
-		}
-		else if(algoIdentifier==1){
+		int request = 0;
+		if(algoIdentifier==1){
 			try{
+				System.out.println("Start:"+ System.currentTimeMillis());
 				HoneyBeeAlgorithm hbAlgorithm=HoneyBeeAlgorithm.getInstance();
 				int location=hbAlgorithm.processHoneyBeeAlgorithm(cpu,storage,ram,time,requestType);
 				System.out.println("cpu "+HoneyBeeConstants.getInstance().getLocationCPU());
@@ -163,44 +150,89 @@ public class RequestController {
 					HoneyBeeAlgorithm.getInstance().processTimeLogForRequest(request,location,requestType);
 					HoneyBeeConstants.getInstance().increaseLocationRequestCount(location);
 				}
+				System.out.println("End:"+System.currentTimeMillis());
 			}catch(Exception e){
 				e.printStackTrace();
 			}
 
+		} else if(algoIdentifier==2){
+			try{
+				System.out.println("Start:"+ System.currentTimeMillis());
+				AntAlgorithm aa = AntAlgorithm.getInstance();
+				aa.setCpu(cpu);
+				aa.setHd(storage);
+				aa.setRam(ram);
+				//aa.printPheromoneTable();
+				
+				System.out.println("After request");	
+				
+				int location = aa.antBasedControl();
+				//System.out.println(AntConstants.getInstance().getDeltaPheromone());
+				// Increase amount of resources allocated.
+				AntConstants.getInstance().increaseLocationDetails(location, cpu, storage, ram);
+				// Decrease amount of allocated resources.
+				//AntConstants.decreaseLocationMaxDetails(location, cpu, storage, ram);
+				
+				AntAlgorithm.getInstance().setRequest(AntAlgorithm.getInstance().getRequest() + 1);
+				request = AntAlgorithm.getInstance().getRequest();
+				System.out.println("Request: "  + request + " would be sent to location: " + AntConstants.getInstance().getLocations().get(location));	
+				
+				System.out.println("Printing pheromone table.");
+				aa.printPheromoneTable();
+				
+				int status = forwardRequest(AntConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
+				
+				if(status == 200) {
+					AntAlgorithm.getInstance().processTimeLogForRequest(request,location,requestType);
+					AntConstants.getInstance().increaseLocationRequestCount(location);
+				}
+				System.out.println("End:"+ System.currentTimeMillis());
+			}catch(Exception e){
+				e.printStackTrace();
+			}
 		}
+		
 
 		//PSO Algorithm
-		else if(algoIdentifier == 4){
-			try{
-				PSOAlgorithm psoAlgorithm = PSOAlgorithm.getInstance();
-				int location = psoAlgorithm.runPSOAlgorithm(cpu,storage,ram,time,request);
-				request ++;
-				//int status = forwardRequest(PSOConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
-				int status = 200;
-				if(status == 200) {
-					PSOConstants.getInstance().increaseLocationRequestCount(location);
-				}
-			}catch(Exception e){
-				e.printStackTrace();
-			}
-
-		}
-
 		else if(algoIdentifier == 3){
 			try{
+				System.out.println("Start:"+ System.currentTimeMillis());
 				LocationAwareAlgorithm locationAwareAlgorithm= LocationAwareAlgorithm.getInstance();
 				Double inputLocation[] = new Double[]{latitude,longitude};
-				int location=locationAwareAlgorithm.runLocationAwareAlgorithm(inputLocation);
+				int location=locationAwareAlgorithm.runLocationAwareAlgorithm(inputLocation, cpu,storage,ram);
 				System.out.println("location of server "  + location);
-				request ++;
+				LocationAwareAlgorithm.getInstance().setRequest(LocationAwareAlgorithm.getInstance().getRequest() + 1);
+				request = LocationAwareAlgorithm.getInstance().getRequest();
 				int status = forwardRequest(HoneyBeeConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
-
+				if(status == 200) {
+					LocationAwareAlgorithm.getInstance().processTimeLogForRequest(request,location,requestType);
+				}
+				System.out.println("End:"+ System.currentTimeMillis());
 			}catch(Exception e){
 				e.printStackTrace();
 			}
 
 		}
 		
+				else if(algoIdentifier == 4){
+					try{
+						System.out.println("Start:"+ System.currentTimeMillis());
+						PSOAlgorithm psoAlgorithm = PSOAlgorithm.getInstance();
+						int location = psoAlgorithm.runPSOAlgorithm(cpu,storage,ram,time,request);
+						PSOAlgorithm.getInstance().setRequest(PSOAlgorithm.getInstance().getRequest() + 1);
+						request = PSOAlgorithm.getInstance().getRequest();
+						int status = forwardRequest(PSOConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
+						//int status = 200;
+						if(status == 200) {
+							PSOAlgorithm.getInstance().processTimeLogForRequest(request,location,requestType);
+						}
+						System.out.println("End:"+ System.currentTimeMillis());
+					}catch(Exception e){
+						e.printStackTrace();
+					}
+
+				}
+
 		
 		return "";
 	}
@@ -265,19 +297,7 @@ public class RequestController {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String processResponseParameter(@FormParam("location") int location, @FormParam("request") int request, @FormParam("cpu") double cpu, @FormParam("storage") double storage, @FormParam("ram") double ram, @FormParam("algoIdentifier") int algoIdentifier, @FormParam("requestType") int requestType) {
 		
-		if(algoIdentifier==2){
-			AntAlgorithm aa = AntAlgorithm.getInstance();
-			
-			// Decrease amount of resources allocated.
-			AntConstants.getInstance().decreaseLocationDetails(location, cpu, storage, ram);
-			aa.increasePheromoneCountOfLocation(location);
-			
-			System.out.println("After response");	
-			
-			System.out.println("Request: " + request + " served by location: " + AntConstants.getInstance().getLocations().get(location));
-			
-			AntConstants.getInstance().decreaseLocationRequestCount(location);
-		}else if(algoIdentifier==1){
+		if(algoIdentifier==1){
 			
 			try{
 				String responseTimeStamp=new SimpleDateFormat("HH:mm:ss.SSS").format(Calendar.getInstance().getTime());
@@ -312,6 +332,53 @@ public class RequestController {
 				e.printStackTrace();
 			}
 			
+		} else if(algoIdentifier==2){
+			try{
+				AntAlgorithm aa = AntAlgorithm.getInstance();
+				
+				// Decrease amount of resources allocated.
+				AntConstants.getInstance().decreaseLocationDetails(location, cpu, storage, ram);
+				aa.increasePheromoneCountOfLocation(location);
+				
+				System.out.println("After response");	
+				
+				System.out.println("Request: " + request + " served by location: " + AntConstants.getInstance().getLocations().get(location));
+				
+				AntConstants.getInstance().decreaseLocationRequestCount(location);
+				
+				String responseTimeStamp=new SimpleDateFormat("HH:mm:ss.SSS").format(Calendar.getInstance().getTime());
+				System.out.println(""+request+"  "+responseTimeStamp+"  "+requestType);
+				AntAlgorithm.getInstance().processTimeLogForResponse(request, responseTimeStamp, requestType);
+				
+				AntAlgorithm.getInstance().calculateResponseTime(request,location,requestType);
+			} catch(Exception e){
+				e.printStackTrace();
+			}
+			
+		} else if(algoIdentifier==3){
+
+			try{
+				LocationAwareAlgorithm locationAwareAlgorithm = LocationAwareAlgorithm.getInstance();
+
+				// Decrease amount of resources allocated.
+				locationAwareAlgorithm.decreaseLocationDetails(location, cpu, storage, ram);
+
+				System.out.println("After response");	
+
+				System.out.println(location);	
+				System.out.println("Request: " + request);
+				
+				
+				String responseTimeStamp=new SimpleDateFormat("HH:mm:ss.SSS").format(Calendar.getInstance().getTime());
+				System.out.println(""+request+"  "+responseTimeStamp+"  "+requestType);
+				LocationAwareAlgorithm.getInstance().processTimeLogForResponse(request, responseTimeStamp, requestType);
+				
+				LocationAwareAlgorithm.getInstance().calculateResponseTime(request,location,requestType);
+				
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+
 		} else if(algoIdentifier==4){
 
 			try{
@@ -324,11 +391,18 @@ public class RequestController {
 				
 				System.out.println(location);	
 				System.out.println("Request: " + request);
+				
+				String responseTimeStamp=new SimpleDateFormat("HH:mm:ss.SSS").format(Calendar.getInstance().getTime());
+				System.out.println(""+request+"  "+responseTimeStamp+"  "+requestType);
+				PSOAlgorithm.getInstance().processTimeLogForResponse(request, responseTimeStamp, requestType);
+				
+				PSOAlgorithm.getInstance().calculateResponseTime(request,location,requestType);
+				
 			}catch(Exception e){
 				e.printStackTrace();
 			}
-
-		}
+			
+		} 
 		
 		
 		// TODO: Send response to client. Need to figure out how will this be processed by client.
@@ -345,14 +419,310 @@ public class RequestController {
 		String result = "";
 		if(algoIndentifier == 1) {
 			
+			HashMap<Integer, HashMap<Integer,List>> locationResponseTimeLogTable = HoneyBeeAlgorithm.getInstance().locationResponseTimeLogTable;
+			
+			System.out.println("********************************");
+			System.out.println("Honey Bee Algorithm");
+			System.out.println("Task 1:::::");
+			
+			// location  requesttype   responsetime
+			
+			Iterator<Entry<Integer, HashMap<Integer,List>>> it = locationResponseTimeLogTable.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, HashMap<Integer,List>> pair = (Map.Entry<Integer, HashMap<Integer,List>>)it.next();
+
+				System.out.println("Server Name: "+HoneyBeeConstants.getInstance().getLocations().get(pair.getKey()));
+				
+				Iterator<Entry<Integer,List>> it1 = (Iterator<Entry<Integer, List>>) pair.getValue().entrySet().iterator();
+
+				while (it1.hasNext()) {
+					Map.Entry<Integer,List> pair1 = (Map.Entry<Integer,List>)it1.next();
+					if(pair1.getKey()!=0){
+						System.out.println("Request Type : "+pair1.getKey());
+						System.out.println("Response Time--> ");
+						ArrayList<Double> al = (ArrayList<Double>) pair1.getValue();
+						for (Double double1 : al) {
+							System.out.print(" "+double1 + ", ");
+						}
+						System.out.println();
+					}
+				}
+				
+			}
+			
+			System.out.println("Task 2:::::");
+			HashMap<Integer, HashMap<Integer, List>> locationAverageResponseTimeLogTable = HoneyBeeAlgorithm.getInstance().locationAverageResponseTimeLogTable;
+			 
+			Iterator<Entry<Integer, HashMap<Integer,List>>> it2 = locationAverageResponseTimeLogTable.entrySet().iterator();
+			while (it2.hasNext()) {
+				Map.Entry<Integer, HashMap<Integer,List>> pair2 = (Map.Entry<Integer, HashMap<Integer,List>>)it2.next();
+
+				System.out.println("Server Name: "+HoneyBeeConstants.getInstance().getLocations().get(pair2.getKey()));
+				
+				Iterator<Entry<Integer,List>> it3 = (Iterator<Entry<Integer, List>>) pair2.getValue().entrySet().iterator();
+
+				while (it3.hasNext()) {
+					Map.Entry<Integer,List> pair3 = (Map.Entry<Integer,List>)it3.next();
+					if(pair3.getKey()!=0){
+						System.out.println("Request Type : "+pair3.getKey());
+						System.out.println("Average Response Time--> ");
+						ArrayList<Double> al = (ArrayList<Double>) pair3.getValue();
+						System.out.print(" "+al.get(0));
+						System.out.println();
+					}
+				}
+				
+			}
+			 
+			
+			System.out.println("********************************");
+	
+			
+			
+			
+			
 		} else if(algoIndentifier == 2) {
+			
+			
+			HashMap<Integer, HashMap<Integer,List>> locationResponseTimeLogTable = AntAlgorithm.getInstance().locationResponseTimeLogTable;
+			
+			System.out.println("********************************");
+			System.out.println("Ant Algorithm");
+			System.out.println("Task 1:::::");
+			
+			// location  requesttype   responsetime
+			
+			Iterator<Entry<Integer, HashMap<Integer,List>>> it = locationResponseTimeLogTable.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, HashMap<Integer,List>> pair = (Map.Entry<Integer, HashMap<Integer,List>>)it.next();
+
+				System.out.println("Server Name: "+AntConstants.getInstance().getLocations().get(pair.getKey()));
+				
+				Iterator<Entry<Integer,List>> it1 = (Iterator<Entry<Integer, List>>) pair.getValue().entrySet().iterator();
+
+				while (it1.hasNext()) {
+					Map.Entry<Integer,List> pair1 = (Map.Entry<Integer,List>)it1.next();
+					if(pair1.getKey()!=0){
+						System.out.println("Request Type : "+pair1.getKey());
+						System.out.println("Response Time--> ");
+						ArrayList<Double> al = (ArrayList<Double>) pair1.getValue();
+						for (Double double1 : al) {
+							System.out.print(" "+double1+", ");
+						}
+						System.out.println();
+					}
+				}
+				
+			}
+			
+			System.out.println("Task 2:::::");
+			HashMap<Integer, HashMap<Integer, List>> locationAverageResponseTimeLogTable = AntAlgorithm.getInstance().locationAverageResponseTimeLogTable;
+			 
+			Iterator<Entry<Integer, HashMap<Integer,List>>> it2 = locationAverageResponseTimeLogTable.entrySet().iterator();
+			while (it2.hasNext()) {
+				Map.Entry<Integer, HashMap<Integer,List>> pair2 = (Map.Entry<Integer, HashMap<Integer,List>>)it2.next();
+
+				System.out.println("Server Name: "+AntConstants.getInstance().getLocations().get(pair2.getKey()));
+				
+				Iterator<Entry<Integer,List>> it3 = (Iterator<Entry<Integer, List>>) pair2.getValue().entrySet().iterator();
+
+				while (it3.hasNext()) {
+					Map.Entry<Integer,List> pair3 = (Map.Entry<Integer,List>)it3.next();
+					if(pair3.getKey()!=0){
+						System.out.println("Request Type : "+pair3.getKey());
+						System.out.println("Average Response Time--> ");
+						ArrayList<Double> al = (ArrayList<Double>) pair3.getValue();
+						System.out.print(" "+al.get(0));
+						System.out.println();
+					}
+				}
+				
+			}
+			 
+			
+			System.out.println("********************************");
+			
 			
 		} else if(algoIndentifier == 3) {
 			
+			HashMap<Integer, HashMap<Integer,List>> locationResponseTimeLogTable = LocationAwareAlgorithm.getInstance().locationResponseTimeLogTable;
+			
+			System.out.println("********************************");
+			System.out.println("Location Aware Algorithm");
+			System.out.println("Task 1:::::");
+			
+			// location  requesttype   responsetime
+			
+			Iterator<Entry<Integer, HashMap<Integer,List>>> it = locationResponseTimeLogTable.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, HashMap<Integer,List>> pair = (Map.Entry<Integer, HashMap<Integer,List>>)it.next();
+
+				System.out.println("Server Name: "+LocationAwareConstants.getInstance().getLocations().get(pair.getKey()));
+				
+				Iterator<Entry<Integer,List>> it1 = (Iterator<Entry<Integer, List>>) pair.getValue().entrySet().iterator();
+
+				while (it1.hasNext()) {
+					Map.Entry<Integer,List> pair1 = (Map.Entry<Integer,List>)it1.next();
+					if(pair1.getKey()!=0){
+						System.out.println("Request Type : "+pair1.getKey());
+						System.out.println("Response Time--> ");
+						ArrayList<Double> al = (ArrayList<Double>) pair1.getValue();
+						for (Double double1 : al) {
+							System.out.print(" "+double1+", ");
+						}
+						System.out.println();
+					}
+				}
+				
+			}
+			
+			System.out.println("Task 2:::::");
+			HashMap<Integer, HashMap<Integer, List>> locationAverageResponseTimeLogTable = LocationAwareAlgorithm.getInstance().locationAverageResponseTimeLogTable;
+			 
+			Iterator<Entry<Integer, HashMap<Integer,List>>> it2 = locationAverageResponseTimeLogTable.entrySet().iterator();
+			while (it2.hasNext()) {
+				Map.Entry<Integer, HashMap<Integer,List>> pair2 = (Map.Entry<Integer, HashMap<Integer,List>>)it2.next();
+
+				System.out.println("Server Name: "+LocationAwareConstants.getInstance().getLocations().get(pair2.getKey()));
+				
+				Iterator<Entry<Integer,List>> it3 = (Iterator<Entry<Integer, List>>) pair2.getValue().entrySet().iterator();
+
+				while (it3.hasNext()) {
+					Map.Entry<Integer,List> pair3 = (Map.Entry<Integer,List>)it3.next();
+					if(pair3.getKey()!=0){
+						System.out.println("Request Type : "+pair3.getKey());
+						System.out.println("Average Response Time--> ");
+						ArrayList<Double> al = (ArrayList<Double>) pair3.getValue();
+						System.out.print(" "+al.get(0));
+						System.out.println();
+					}
+				}
+				
+			}
+			 
+			
+			System.out.println("********************************");
+			
 		} else if(algoIndentifier == 4) {
+			
+			HashMap<Integer, HashMap<Integer,List>> locationResponseTimeLogTable = PSOAlgorithm.getInstance().locationResponseTimeLogTable;
+			
+			System.out.println("********************************");
+			System.out.println("PSO Algorithm");
+			System.out.println("Task 1:::::");
+			
+			// location  requesttype   responsetime
+			
+			Iterator<Entry<Integer, HashMap<Integer,List>>> it = locationResponseTimeLogTable.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, HashMap<Integer,List>> pair = (Map.Entry<Integer, HashMap<Integer,List>>)it.next();
+
+				System.out.println("Server Name: "+PSOConstants.getInstance().getLocations().get(pair.getKey()));
+				
+				Iterator<Entry<Integer,List>> it1 = (Iterator<Entry<Integer, List>>) pair.getValue().entrySet().iterator();
+
+				while (it1.hasNext()) {
+					Map.Entry<Integer,List> pair1 = (Map.Entry<Integer,List>)it1.next();
+					if(pair1.getKey()!=0){
+						System.out.println("Request Type : "+pair1.getKey());
+						System.out.println("Response Time--> ");
+						ArrayList<Double> al = (ArrayList<Double>) pair1.getValue();
+						for (Double double1 : al) {
+							System.out.print(" "+double1+", ");
+						}
+						System.out.println();
+					}
+				}
+				
+			}
+			
+			System.out.println("Task 2:::::");
+			HashMap<Integer, HashMap<Integer, List>> locationAverageResponseTimeLogTable = PSOAlgorithm.getInstance().locationAverageResponseTimeLogTable;
+			 
+			Iterator<Entry<Integer, HashMap<Integer,List>>> it2 = locationAverageResponseTimeLogTable.entrySet().iterator();
+			while (it2.hasNext()) {
+				Map.Entry<Integer, HashMap<Integer,List>> pair2 = (Map.Entry<Integer, HashMap<Integer,List>>)it2.next();
+
+				System.out.println("Server Name: "+PSOConstants.getInstance().getLocations().get(pair2.getKey()));
+				
+				Iterator<Entry<Integer,List>> it3 = (Iterator<Entry<Integer, List>>) pair2.getValue().entrySet().iterator();
+
+				while (it3.hasNext()) {
+					Map.Entry<Integer,List> pair3 = (Map.Entry<Integer,List>)it3.next();
+					if(pair3.getKey()!=0){
+						System.out.println("Request Type : "+pair3.getKey());
+						System.out.println("Average Response Time--> ");
+						ArrayList<Double> al = (ArrayList<Double>) pair3.getValue();
+						System.out.print(" "+al.get(0));
+						System.out.println();
+					}
+				}
+				
+			}
+			 
+			
+			System.out.println("********************************");
+			
 			
 		}
 		
 		return result;
 	}
+	
+	
+	@Path("/system-information")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public String fetchSystemInformation() {
+		// Sigar API for fetching System information.
+		Sigar sigar = new Sigar();
+		JSONObject jsonObject = new JSONObject();
+		DecimalFormat df = new DecimalFormat("#.##");
+		
+		try {
+			CpuInfo[] cpuInfos = sigar.getCpuInfoList();
+			double totalCpu = 0.0;
+			for (int i = 0; i < cpuInfos.length; i++) {
+				System.out.println(cpuInfos[i].getMhz());
+				totalCpu += cpuInfos[i].getMhz();
+			}
+			
+			jsonObject.put("cpuMax", df.format(totalCpu / 1000));
+			//System.out.println(sigar.getCpuPerc().getCombined());
+			OperatingSystemMXBean osmb = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+			
+			System.out.println(osmb.getSystemCpuLoad());
+			jsonObject.put("cpu", df.format(osmb.getSystemCpuLoad() * totalCpu / 1000));
+			
+			CpuTimer cpuTimer = new CpuTimer(sigar);
+			
+			System.out.println(cpuTimer.getCpuTotal());
+			System.out.println(cpuTimer.getCpuUsage());
+			
+			//System.out.println(sigar.getCpu());
+			System.out.println(sigar.getMem().getTotal());
+			jsonObject.put("ramMax", df.format(sigar.getMem().getTotal() / 1048576));
+			
+			System.out.println(sigar.getMem().getUsed());
+			jsonObject.put("ram", df.format(sigar.getMem().getUsed() / 1048576));
+			
+			FileSystem[] fileSystems = sigar.getFileSystemList();
+			if(fileSystems[0] != null) {
+				FileSystemUsage usage = sigar.getFileSystemUsage(fileSystems[0].getDirName());
+	            System.out.println(usage.getTotal());
+	            jsonObject.put("hdMax", df.format(usage.getTotal() / 1024));
+				
+	            System.out.println(usage.getUsed());
+	            jsonObject.put("hd", df.format(usage.getUsed() / 1024));
+				
+			}
+			
+		} catch (SigarException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return jsonObject.toJSONString();
+	}
+	
 }
