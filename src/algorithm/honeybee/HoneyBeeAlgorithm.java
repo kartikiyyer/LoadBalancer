@@ -15,7 +15,7 @@ import java.util.TreeMap;
 import org.apache.catalina.Server;
 import org.apache.catalina.startup.Tomcat.ExistingStandardWrapper;
 
-public class HoneyBeeAlgorithm {
+public class HoneyBeeAlgorithm{
 
 	
 	/*
@@ -24,7 +24,7 @@ public class HoneyBeeAlgorithm {
 	 */
 //	private HashMap<Integer, Double> fitnessTable = new HashMap<Integer, Double>();
 	@SuppressWarnings("rawtypes")
-	private HashMap<Integer, HashMap<Integer, List>> reqResTimeLogTable = new HashMap<Integer, HashMap<Integer, List>>();
+	public HashMap<Integer, HashMap<Integer, List>> reqResTimeLogTable = new HashMap<Integer, HashMap<Integer, List>>();
 	@SuppressWarnings("rawtypes")
 	public HashMap<Integer, HashMap<Integer,List>> locationResponseTimeLogTable = new HashMap<Integer, HashMap<Integer,List>>();
 	public HashMap<Integer, HashMap<Integer,List>> locationAverageResponseTimeLogTable = new HashMap<Integer, HashMap<Integer,List>>();
@@ -36,9 +36,18 @@ public class HoneyBeeAlgorithm {
 	private int requestType;
 	private int tempCount=1;
 	private boolean flag=false;
+	private HashMap<Integer, Double> reqCost = new HashMap<Integer,Double>();
 	
 	private static HoneyBeeAlgorithm honeybeeAlgorithm;
 	
+	public HashMap<Integer, Double> getReqCost() {
+		return reqCost;
+	}
+
+	public void setReqCost(HashMap<Integer, Double> reqCost) {
+		this.reqCost = reqCost;
+	}
+
 	private HoneyBeeAlgorithm() {
 		int i;
 		// Inserting into fitness table
@@ -101,7 +110,7 @@ public class HoneyBeeAlgorithm {
 	}
 	
 	
-	public int processHoneyBeeAlgorithm(double cpu, double storage, double ram, double time,int requestType){
+	public int processHoneyBeeAlgorithm(double cpu, double storage, double ram, double time,int requestType,int zone){
 
 		HoneyBeeAlgorithm.getInstance().setCpu(cpu);
 		HoneyBeeAlgorithm.getInstance().setHd(storage);
@@ -113,7 +122,7 @@ public class HoneyBeeAlgorithm {
 		System.out.println("After request");	
 		//insufficientResourceLocation will be zero or have no value right now
 		ArrayList<Integer> insufficientResourceLocation=new ArrayList<Integer>();
-		int location = HoneyBeeAlgorithm.getInstance().honeybeeBasedControl(insufficientResourceLocation);
+		int location = HoneyBeeAlgorithm.getInstance().honeybeeBasedControl(insufficientResourceLocation,zone);
 		
 		//reduce the allocated resource
 		HoneyBeeConstants.getInstance().increaseLocationDetails(location, HoneyBeeAlgorithm.getInstance().getCpu(), HoneyBeeAlgorithm.getInstance().getHd(), HoneyBeeAlgorithm.getInstance().getRam());
@@ -128,7 +137,7 @@ public class HoneyBeeAlgorithm {
 		
 		System.out.println("-------------------------------------------------------");
 //		hbAlgorithm.printFitnessTable();
-	
+			
 		return location;
 	}
 
@@ -141,11 +150,13 @@ public class HoneyBeeAlgorithm {
 	}*/
 	
 	
-	public int getLocationWithHighestFitnessValue(ArrayList<Integer> insufficientResourceLocation) {
+	public int getLocationWithHighestFitnessValue(ArrayList<Integer> insufficientResourceLocation,int zone) {
 		// find the least avg time for this request type and pick that location id from locationResponseTimeLogTable
 		//iterate over outermost hashmap, get the avgtime value of particular request type from the inner map n arraylist
 		
-		int temp=0,location=1; //returning first since default value is 1 
+		//get complete locations array of particular zone
+		int[] locationAr = HoneyBeeConstants.getInstance().getZoneLocations().get(zone);
+		int temp=0,location=locationAr[0]; //new: returning first in the zone(old code: default value is 1) 
 	    double tempMinAvgVal=0;
 	    HashMap<Integer, List> tempHM=new HashMap<Integer, List>();
 		
@@ -211,12 +222,30 @@ public class HoneyBeeAlgorithm {
 							tempHM=pair.getValue();
 							if(temp==0){
 								tempMinAvgVal=Double.parseDouble(tempHM.get(requestType).get(0).toString());
-								location=pair.getKey();
+								//location=pair.getKey();
+								
+								//changes - if location from same zone then only process
+								HashMap<Integer, int[]> tempZoneWiseLocNo = HoneyBeeConstants.getInstance().getZoneLocations();
+								int[] currVal = tempZoneWiseLocNo.get(zone);
+								for(int x=0;x<currVal.length;x++){
+									if(currVal[x]==pair.getKey()){
+										location = pair.getKey();
+									}
+								}
+								//
 								temp++;
 							}
 							else{
-								if(Double.parseDouble(tempHM.get(requestType).get(0).toString())<tempMinAvgVal){
-									location=pair.getKey();
+								if(Double.parseDouble(tempHM.get(requestType).get(0).toString())<=tempMinAvgVal){
+//									location=pair.getKey();
+									//changes  - if location from same zone then only process
+									HashMap<Integer, int[]> tempZoneWiseLocNo = HoneyBeeConstants.getInstance().getZoneLocations();
+									int[] currVal = tempZoneWiseLocNo.get(zone);
+									for(int x=0;x<currVal.length;x++){
+										if(currVal[x]==pair.getKey()){
+											location = pair.getKey();
+										}
+									}
 								}
 							}
 						}
@@ -224,8 +253,19 @@ public class HoneyBeeAlgorithm {
 					else{
 						System.out.println("locationAverageResponseTimeLogTable "+locationAverageResponseTimeLogTable);
 						HashMap<Double, Integer> sampleHM=new HashMap<Double,Integer>();
-						for(int val=1;val<=HoneyBeeConstants.getInstance().getNoOfLocations();val++){
+						
+						//changes -- to select locations only from chosen zone
+						/*HashMap<Integer, Integer> tempLocHM = HoneyBeeConstants.getInstance().getNoOfLocationsWrtZone();
+						int tempLocCountVal = tempLocHM.get(zone);*/
+						HashMap<Integer, int[]> tempZoneWiseLocNo = HoneyBeeConstants.getInstance().getZoneLocations();
+						int[] currVal = tempZoneWiseLocNo.get(zone);
+						
+//						for(int val=1;val<=HoneyBeeConstants.getInstance().getNoOfLocations();val++){
+						for(int val=currVal[0];val<currVal[0]+currVal.length;val++){
 							System.out.println("average response time for location "+val+"  "+locationAverageResponseTimeLogTable.get(val).get(requestType).get(0));
+							//TODO check this! bcoz without response sampleHM will always have 0.0 as key for each loc..
+							//so it will replace the entry with 0.0 every time with the new value loc which also has key 0.0
+							// for non 0.0 it will work fine!
 							sampleHM.put(Double.parseDouble(locationAverageResponseTimeLogTable.get(val).get(requestType).get(0).toString()), val);
 						}
 						TreeMap<Double, Integer> treeMap = new TreeMap<Double, Integer>(sampleHM);
@@ -274,7 +314,7 @@ public class HoneyBeeAlgorithm {
 	}
 	
 	public void processTimeLogForResponse(int request, String responseTimeStamp, int requestType)throws Exception{
-		System.out.println("reqResTimeLogTable in response: "+reqResTimeLogTable);
+//		System.out.println("reqResTimeLogTable in response: "+reqResTimeLogTable);
 		reqResTimeLogTable.get(request).get(requestType).set(2, responseTimeStamp);
 		System.out.println("reqResTimeLogTable after reset in response: "+reqResTimeLogTable);
 	}
@@ -288,9 +328,9 @@ public class HoneyBeeAlgorithm {
 		    double diffSeconds = diffInMilliSeconds / 1000.0;
 		    System.out.println("Time in seconds: " + diffSeconds + " seconds.");  
 		    reqResTimeLogTable.get(request).get(requestType).set(3, diffSeconds);
-		    System.out.println("reqResTimeLogTable after update:::::::::: "+reqResTimeLogTable);
+		    System.out.println("##reqResTimeLogTable after update##: "+reqResTimeLogTable);
 		    
-		    System.out.println("locationResponseTimeLogTable before update: "+locationResponseTimeLogTable);
+//		    System.out.println("locationResponseTimeLogTable before update: "+locationResponseTimeLogTable);
 		    
 //		    		Double newAvgResponseTime=(Double.parseDouble(locationResponseTimeLogTable.get(location).get(requestType).get(0).toString())+diffSeconds)/(Integer.parseInt(locationResponseTimeLogTable.get(location).get(requestType).get(1).toString())+1);
 		    		
@@ -306,6 +346,9 @@ public class HoneyBeeAlgorithm {
 		    		}
 		    		double avgTime=timeCalc/tempCountList.size();
 		    		locationAverageResponseTimeLogTable.get(location).get(requestType).set(0, avgTime);
+		    		//change - new
+		    		System.out.println("##locationAverageResponseTimeLogTable##: "+locationAverageResponseTimeLogTable);
+		    		
 		    		System.out.println("Average Response Time For "+requestType+" at location "+location+" is "+locationAverageResponseTimeLogTable.get(location).get(requestType).get(0));
 		    		System.out.println("Number of request at location "+location+" for request type "+requestType+" : "+tempCountList.size());
 		}catch(Exception e){
@@ -322,11 +365,11 @@ public class HoneyBeeAlgorithm {
 	 * @return
 	 */
 	
-	public int honeybeeBasedControl(ArrayList<Integer> insufficientResourceLocation) {
+	public int honeybeeBasedControl(ArrayList<Integer> insufficientResourceLocation,int zone) {
 		flag=false;
 		// Fetch the location with highest fitness value.
 		// This would be our candidate for processing request.
-		int location = getLocationWithHighestFitnessValue(insufficientResourceLocation);
+		int location = getLocationWithHighestFitnessValue(insufficientResourceLocation,zone);
 		System.out.println("@@@@@@@@@@@@@@");
 		System.out.println("cpu required: "+HoneyBeeAlgorithm.getInstance().getCpu());
 		
@@ -338,14 +381,29 @@ public class HoneyBeeAlgorithm {
 		
 		// Check whether there are sufficient amount of resource available on that location.
 		if(!(HoneyBeeConstants.getInstance().isCPUAvailable(location, HoneyBeeAlgorithm.getInstance().getCpu()) && HoneyBeeConstants.getInstance().isHDAvailable(location, HoneyBeeAlgorithm.getInstance().getHd()) && HoneyBeeConstants.getInstance().isRAMAvailable(location, HoneyBeeAlgorithm.getInstance().getRam()))) {
+			
+			//changes 3 dec - if there is no prior insufficient loc then reset temp to 1 since 
+			//temp val is not reseting anywhere else, and it needs to be reset after 1 req is completely processed...
+			//otherwise it will return the last value of loc if tempCount goes beyond value 3 (count of locations in any zone)
+			if(insufficientResourceLocation.isEmpty()){
+				tempCount=1;
+			}
+			
 			//if sufficient resources not available then search for another free location
-			insufficientResourceLocation.add(location);
+			if(!insufficientResourceLocation.contains(location)){
+				insufficientResourceLocation.add(location);
+			}
+			
 			System.out.println("insufficient resources at location: "+insufficientResourceLocation);
 			/*location = honeybeeBasedControl(insufficientResourceLocation);
 			System.out.println("Searching for available resource server.......");*/
-			if(tempCount<=HoneyBeeConstants.getInstance().getNoOfLocations()){
+			//changes
+//			if(tempCount<=HoneyBeeConstants.getInstance().getNoOfLocations()){
+			HashMap<Integer,Integer> tempHM= HoneyBeeConstants.getInstance().getNoOfLocationsWrtZone();
+			
+			if(tempCount<=tempHM.get(zone)){
 //				if(tempCount!=-1){
-					location = honeybeeBasedControl(insufficientResourceLocation); //TODO this recursion is causing trouble due to its internal running
+					location = honeybeeBasedControl(insufficientResourceLocation,zone);
 //					if(!insufficientResourceLocation.contains(location1) && flag==false/*tempCount>0*/){ //since tempCount++ is done after 'if' hence checked for value 1000 here
 //						System.out.println("after location1:  "+location);
 //						location=location1;

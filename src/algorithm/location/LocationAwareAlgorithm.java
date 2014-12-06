@@ -2,10 +2,6 @@ package algorithm.location;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import algorithm.ant.AntConstants;
-import algorithm.pso.PSOConstants;
-
-
 public class LocationAwareAlgorithm
 {
 
@@ -19,9 +15,18 @@ public class LocationAwareAlgorithm
 	int location;
 	int request;
 	
-	private HashMap<Integer, HashMap<Integer, List>> reqResTimeLogTable = new HashMap<Integer, HashMap<Integer, List>>();
+	public HashMap<Integer, HashMap<Integer, List>> reqResTimeLogTable = new HashMap<Integer, HashMap<Integer, List>>();
 	public HashMap<Integer, HashMap<Integer,List>> locationResponseTimeLogTable = new HashMap<Integer, HashMap<Integer,List>>();
 	public HashMap<Integer, HashMap<Integer,List>> locationAverageResponseTimeLogTable = new HashMap<Integer, HashMap<Integer,List>>();
+	private HashMap<Integer, Double> reqCost = new HashMap<Integer,Double>();
+	
+	public HashMap<Integer, Double> getReqCost() {
+		return reqCost;
+	}
+
+	public void setReqCost(HashMap<Integer, Double> reqCost) {
+		this.reqCost = reqCost;
+	}
 	
 	public int getRequest() {
 		return request;
@@ -106,18 +111,24 @@ public class LocationAwareAlgorithm
 		}
 	}
 	
-	public int runLocationAwareAlgorithm(Double[] inputLocation, double cpu, double storage, double ram) {
-
+//	public int runLocationAwareAlgorithm(Double[] inputLocation, double cpu, double storage, double ram) {
+	public int runLocationAwareAlgorithm(Double[] inputLocation,int zone, double cpu, double storage, double ram) {
 		int tempDistance = 0;
 		int tempLocation = 0;
 		HashMap<Integer, Double[]> tempMap = new HashMap<Integer,Double[]>();
 
-		for(int i=1;i<=numOfVm;i++)
+		//changes - new code
+		
+		HashMap<Integer, int[]> tempZoneWiseLocNo = LocationAwareConstants.getInstance().getZoneLocations();
+		int[] currVal = tempZoneWiseLocNo.get(zone);
+		
+		for(int i=currVal[0];i<currVal[0]+currVal.length;i++)
 		{
 			if(cpu < currentCPUState.get(i) && storage < currentStorageState.get(i) && ram <currentRAMState.get(i))
 			{
 				tempMap.put(i, LocationAwareConstants.getInstance().geoLocation.get(i));
-				System.out.println("In runLocationAwareAlgorithm: TempLocation<key>:"+i+" <Lattitude>:"+LocationAwareConstants.getInstance().geoLocation.get(i)[0]+" <Longitude>:"+LocationAwareConstants.getInstance().geoLocation.get(i)[1]);
+				
+//				System.out.println("In runLocationAwareAlgorithm: TempLocation<key>:"+i+" <Lattitude>:"+LocationAwareConstants.getInstance().geoLocation.get(i)[0]+" <Longitude>:"+LocationAwareConstants.getInstance().geoLocation.get(i)[1]);
 			}
 
 		}
@@ -149,7 +160,7 @@ public class LocationAwareAlgorithm
 			System.out.println("locationResponseTimeLogTable is empty..");
 			//put 0 in locationResponseTimeLogTable
 //			ArrayList lst=new ArrayList<>();
-			for(int respTempVar=1;respTempVar<=AntConstants.getInstance().getNoOfLocations();respTempVar++){
+			for(int respTempVar=1;respTempVar<=LocationAwareConstants.getInstance().getNoOfLocations();respTempVar++){
 			HashMap<Integer,List> hmap=new HashMap<Integer,List>();
 			for(int tempVar=0;tempVar<5;tempVar++){
 //				if(tempVar<2){
@@ -168,7 +179,7 @@ public class LocationAwareAlgorithm
 			if(locationAverageResponseTimeLogTable.isEmpty()){
 				System.out.println("locationAverageResponseTimeLogTable is empty..");
 				//put 0 in locationAverageResponseTimeLogTable
-				for(int respAvgTempVar=1;respAvgTempVar<=AntConstants.getInstance().getNoOfLocations();respAvgTempVar++){
+				for(int respAvgTempVar=1;respAvgTempVar<=LocationAwareConstants.getInstance().getNoOfLocations();respAvgTempVar++){
 				HashMap<Integer,List> avghmap=new HashMap<Integer,List>();
 				for(int tempVar=0;tempVar<5;tempVar++){
 //					if(tempVar<2){

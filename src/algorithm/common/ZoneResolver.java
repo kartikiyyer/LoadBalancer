@@ -9,10 +9,10 @@ import algorithm.pso.PSOConstants;
 public class ZoneResolver
 {
 
-	int numOfVm;
-	private static ZoneResolver locationAwareAlgorithm;
+	int numOfZones;
+	private static ZoneResolver zoneAwareAlgorithm;
 	public final static double AVERAGE_RADIUS_OF_EARTH = 6371;
-	int location;
+	int zone;
 	int request;
 	
 	
@@ -26,16 +26,16 @@ public class ZoneResolver
 	}
 	
 	private ZoneResolver() {
-		numOfVm = ZoneResolverConstants.getInstance().getNoOfLocations();
+		numOfZones = ZoneResolverConstants.getInstance().getNoOfZones();
 	}
 
 
 
 	public static synchronized ZoneResolver getInstance() {
-		if(locationAwareAlgorithm == null) {
-			locationAwareAlgorithm = new ZoneResolver();
+		if(zoneAwareAlgorithm == null) {
+			zoneAwareAlgorithm = new ZoneResolver();
 		}
-		return locationAwareAlgorithm;
+		return zoneAwareAlgorithm;
 	}
 
 
@@ -47,10 +47,10 @@ public class ZoneResolver
 		int tempLocation = 0;
 		HashMap<Integer, Double[]> tempMap = new HashMap<Integer,Double[]>();
 
-		for(int i=1;i<=numOfVm;i++)
+		for(int i=1;i<=numOfZones;i++)
 		{
-				tempMap.put(i, ZoneResolverConstants.getInstance().geoLocation.get(i));
-				System.out.println("In runLocationAwareAlgorithm: TempLocation<key>:"+i+" <Lattitude>:"+ZoneResolverConstants.getInstance().geoLocation.get(i)[0]+" <Longitude>:"+ZoneResolverConstants.getInstance().geoLocation.get(i)[1]);
+				tempMap.put(i, ZoneResolverConstants.getInstance().geoZone.get(i));
+				System.out.println("In Zone Resolver: TempLocation<key>:"+i+" <Lattitude>:"+ZoneResolverConstants.getInstance().geoZone.get(i)[0]+" <Longitude>:"+ZoneResolverConstants.getInstance().geoZone.get(i)[1]);
 		}
 
 		Iterator it = tempMap.entrySet().iterator();
@@ -72,8 +72,8 @@ public class ZoneResolver
 				System.out.println("tempLocation:"+tempLocation);
 			}
 		}
-		location = tempLocation;
-		return location;
+		zone = tempLocation;
+		return zone;
 	}
 
 	

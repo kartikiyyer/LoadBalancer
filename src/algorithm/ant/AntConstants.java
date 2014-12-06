@@ -19,7 +19,64 @@ public class AntConstants {
 	private HashMap<Integer, Double> locationMaxRAM = new HashMap<Integer, Double>();
 	private static AntConstants antConstants;
 	
+	public static HashMap<Integer, Double[]> locationCost = new HashMap<Integer, Double[]>();
+	public static HashMap<Integer, Double> costHM = new HashMap<Integer, Double>();
+	
 	private AntConstants() {
+		
+		Double[] cost = new Double[3];
+		cost[0]=0.1;
+		cost[1]=0.08;
+		cost[2]=0.19;
+		locationCost.put(1, cost);
+		
+		cost = new Double[3];
+		cost[0]=0.2;
+		cost[1]=0.1;
+		cost[2]=0.15;
+		locationCost.put(2, cost);
+		
+		cost = new Double[3];
+		cost[0]=0.1;
+		cost[1]=0.08;
+		cost[2]=0.29;
+		locationCost.put(3, cost);
+		
+		cost = new Double[3];
+		cost[0]=0.2;
+		cost[1]=0.1;
+		cost[2]=0.15;
+		locationCost.put(4, cost);
+		
+		cost = new Double[3];
+		cost[0]=0.15;
+		cost[1]=0.19;
+		cost[2]=0.19;
+		locationCost.put(5, cost);
+	
+		cost = new Double[3];
+		cost[0]=0.19;
+		cost[1]=0.16;
+		cost[2]=0.2;
+		locationCost.put(6, cost);
+		
+		cost = new Double[3];
+		cost[0]=0.2;
+		cost[1]=0.1;
+		cost[2]=0.29;
+		locationCost.put(7, cost);
+		
+		cost = new Double[3];
+		cost[0]=0.2;
+		cost[1]=0.08;
+		cost[2]=0.16;
+		locationCost.put(8, cost);
+		
+		cost = new Double[3];
+		cost[0]=0.1;
+		cost[1]=0.1;
+		cost[2]=0.15;
+		locationCost.put(9, cost);
 		
 		locations.put(1, "ubuntu-mc-1.cloudapp.net");
 		locations.put(2, "ubuntu-mc-2.cloudapp.net");

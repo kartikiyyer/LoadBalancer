@@ -11,6 +11,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 public class CommonUtilities {
 	public static void main(String[] args){
@@ -196,7 +200,7 @@ public class CommonUtilities {
 		if(insufficientResourceLocation.contains(3)){
 			System.out.println("yes");
 		}*/
-		HashMap<Integer, HashMap<Integer,List>> locationResponseTimeLogTable = new HashMap<Integer, HashMap<Integer,List>>();
+		/*HashMap<Integer, HashMap<Integer,List>> locationResponseTimeLogTable = new HashMap<Integer, HashMap<Integer,List>>();
 		ArrayList lst=new ArrayList<>();
 		HashMap<Integer,List> hmap=new HashMap<Integer,List>();
 		for(int tempVar=0;tempVar<5;tempVar++){
@@ -211,6 +215,70 @@ public class CommonUtilities {
 		}
 		if(locationResponseTimeLogTable.get(0)!=null){
 			System.out.println(locationResponseTimeLogTable);
+		}*/
+		
+		/*ArrayList lst=new ArrayList<>();
+		lst.add(0,"rohan");
+		System.out.println(lst);
+		lst.set(0,"abc");
+		System.out.println(lst);*/
+		
+		/*HashMap<Integer, HashMap<Integer,ArrayList>> locationResponseTimeLogTable = new HashMap<Integer, HashMap<Integer,ArrayList>>();
+		ArrayList lst=new ArrayList<>();
+		HashMap<Integer,ArrayList> hmap=new HashMap<Integer,ArrayList>();
+		for(int tempVar=0;tempVar<3;tempVar++){
+			if(tempVar<2)
+				lst.add(0);
+			
+			hmap.put(tempVar, lst);
+		}
+		
+		for(int tempVar=1;tempVar<3;tempVar++){
+			locationResponseTimeLogTable.put(tempVar, hmap);
+		}
+		System.out.println("before: "+locationResponseTimeLogTable);
+					
+//		System.out.println(lst);
+		lst.add(0, 5.5);
+		lst.add(1, 1);
+		hmap.put(2, lst);
+		
+		lst.add(0, 33);
+		lst.add(1, 2);
+		System.out.println("hmap before: "+hmap);
+		
+            	System.out.println("in 2");
+            	hmap.get(0).set(0, 33);
+                hmap.get(1).set(1, 1);
+           
+		System.out.println("hmap: "+hmap);
+		System.out.println(locationResponseTimeLogTable);
+		locationResponseTimeLogTable.put(1, hmap);
+//		locationResponseTimeLogTable.get(1).get(2).set(0,3);
+		System.out.println(locationResponseTimeLogTable);*/
+		/*JSONObject jo = new JSONObject();
+		JSONArray jArr = new JSONArray();
+		List lst = new ArrayList<>();
+		for(int j=0;j<10;j++){
+			lst = new ArrayList<>();
+			for(int i=0;i<3;i++){
+				lst.add(i);
+			}
+			jArr.add(lst);
+		}
+		
+		jo.put("HBAlgoGraph", jArr);
+		System.out.println(jo);
+		System.out.println(jo.get("HBAlgoGraph"));
+		ArrayList ar=(ArrayList)jo.get("HBAlgoGraph");
+		System.out.println(ar.get(0));*/
+		List lst = new ArrayList<>();
+//		lst.add("");
+		if(lst.get(0).equals("")){
+			System.out.println("Blank");
+		}
+		else{
+			System.out.println("NOT Blank");
 		}
 		
 	}
