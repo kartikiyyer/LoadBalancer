@@ -204,9 +204,14 @@ public class AntAlgorithm {
 		}
 		
 		// If all locations have the same value. Then randomly select one location.
-		if(maxValue == minValue) {
+		/*if(maxValue == minValue) {
 			Random random = new Random();
 			location = random.nextInt(pheromoneTable.size()) + 1;
+		}*/
+		
+		if(maxValue == minValue) {
+			Random random = new Random();
+			location = locations.get(random.nextInt(locations.size()));
 		}
 		
 		return location;

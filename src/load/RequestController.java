@@ -224,7 +224,7 @@ public class RequestController {
 				aa.printPheromoneTable();
 
 				int status = forwardRequest(AntConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
-
+				status = 200;
 				if(status == 200) {
 					AntAlgorithm.getInstance().processTimeLogForRequest(request,location,requestType);
 					AntConstants.getInstance().increaseLocationRequestCount(location);
