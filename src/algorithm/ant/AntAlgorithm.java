@@ -26,11 +26,13 @@ public class AntAlgorithm {
 	private double hd;
 	private double ram;
 	private int request;
+	private int recursionCount = 0;
 	private static AntAlgorithm antAlgorithm;
 	public HashMap<Integer, HashMap<Integer, List>> reqResTimeLogTable = new HashMap<Integer, HashMap<Integer, List>>();
 	public HashMap<Integer, HashMap<Integer,List>> locationResponseTimeLogTable = new HashMap<Integer, HashMap<Integer,List>>();
 	public HashMap<Integer, HashMap<Integer,List>> locationAverageResponseTimeLogTable = new HashMap<Integer, HashMap<Integer,List>>();
 	private HashMap<Integer, Double[]> reqCost = new HashMap<Integer,Double[]>();
+	private int zone;
 	
 	public HashMap<Integer, Double[]> getReqCost() {
 		return reqCost;
@@ -94,6 +96,16 @@ public class AntAlgorithm {
 
 	public void setRequest(int request) {
 		this.request = request;
+	}
+
+
+	public int getZone() {
+		return zone;
+	}
+
+
+	public void setZone(int zone) {
+		this.zone = zone;
 	}
 
 
@@ -163,10 +175,14 @@ public class AntAlgorithm {
 	
 	
 	public int getLocationWithHighestPheromoneCount() {
-		Iterator<Entry<Integer, Double>> it = pheromoneTable.entrySet().iterator();
+		//Iterator<Entry<Integer, Double>> it = pheromoneTable.entrySet().iterator();
+		// Modified to support zone implementation.
+		ArrayList<Integer> locations = AntConstants.getInstance().getZones().get(zone);
+		
 		double maxValue = 0, minValue = AntConstants.getInstance().getPheromone();
 		int location = 0;
-		while (it.hasNext()) {
+		
+		/*while (it.hasNext()) {
 			Map.Entry<Integer, Double> pair = (Map.Entry<Integer, Double>)it.next();
 			if(pair.getValue() > maxValue) {
 				maxValue = pair.getValue();
@@ -174,6 +190,16 @@ public class AntAlgorithm {
 			}
 			if(pair.getValue() < minValue) {
 				minValue = pair.getValue();
+			}
+		}*/
+		
+		for(int i=0;i<locations.size();i++) {		
+			if(pheromoneTable.get(locations.get(i)) > maxValue) {
+				maxValue = pheromoneTable.get(locations.get(i));
+				location = locations.get(i); 
+			}
+			if(pheromoneTable.get(locations.get(i)) < minValue) {
+				minValue = pheromoneTable.get(locations.get(i));
 			}
 		}
 		
@@ -232,9 +258,13 @@ public class AntAlgorithm {
 		if(!(AntConstants.getInstance().isCPUAvailable(location, cpu) && AntConstants.getInstance().isHDAvailable(location, hd) && AntConstants.getInstance().isRAMAvailable(location, ram))) {
 			// If not decrease the pheromone count of that location and start the search again.
 			decreasePheromoneCountOfLocation(location);
-			location = antBasedControl();
+			recursionCount ++;
+			// Check if the recursion count does not exceeds the maximum limit so as to stop recursion
+			if(recursionCount < 15)
+				location = antBasedControl();
 		}
 		
+		recursionCount = 0;
 		
 		if(locationResponseTimeLogTable.isEmpty()){
 			System.out.println("locationResponseTimeLogTable is empty..");

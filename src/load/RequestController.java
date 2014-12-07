@@ -194,7 +194,7 @@ public class RequestController {
 				//aa.printPheromoneTable();
 
 				System.out.println("After request");	
-
+				aa.setZone(zone);
 				int location = aa.antBasedControl();
 				//System.out.println(AntConstants.getInstance().getDeltaPheromone());
 				// Increase amount of resources allocated.
