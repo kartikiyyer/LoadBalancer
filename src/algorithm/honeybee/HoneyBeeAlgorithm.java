@@ -36,15 +36,15 @@ public class HoneyBeeAlgorithm{
 	private int requestType;
 	private int tempCount=1;
 	private boolean flag=false;
-	private HashMap<Integer, Double> reqCost = new HashMap<Integer,Double>();
+	private HashMap<Integer, Double[]> reqCost = new HashMap<Integer,Double[]>();
 	
 	private static HoneyBeeAlgorithm honeybeeAlgorithm;
 	
-	public HashMap<Integer, Double> getReqCost() {
+	public HashMap<Integer, Double[]> getReqCost() {
 		return reqCost;
 	}
 
-	public void setReqCost(HashMap<Integer, Double> reqCost) {
+	public void setReqCost(HashMap<Integer, Double[]> reqCost) {
 		this.reqCost = reqCost;
 	}
 

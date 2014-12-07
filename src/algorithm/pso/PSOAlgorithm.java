@@ -57,13 +57,13 @@ public class PSOAlgorithm {
 	public HashMap<Integer, HashMap<Integer,List>> locationResponseTimeLogTable = new HashMap<Integer, HashMap<Integer,List>>();
 	public HashMap<Integer, HashMap<Integer,List>> locationAverageResponseTimeLogTable = new HashMap<Integer, HashMap<Integer,List>>();
 	
-private HashMap<Integer, Double> reqCost = new HashMap<Integer,Double>();
+private HashMap<Integer, Double[]> reqCost = new HashMap<Integer,Double[]>();
 	
-	public HashMap<Integer, Double> getReqCost() {
+	public HashMap<Integer, Double[]> getReqCost() {
 		return reqCost;
 	}
 
-	public void setReqCost(HashMap<Integer, Double> reqCost) {
+	public void setReqCost(HashMap<Integer, Double[]> reqCost) {
 		this.reqCost = reqCost;
 	}
 

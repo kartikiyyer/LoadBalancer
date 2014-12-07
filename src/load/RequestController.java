@@ -160,10 +160,17 @@ public class RequestController {
 				//calculate cost for this request
 				Double[] locCost = new Double[3];
 				locCost=HoneyBeeConstants.locationCost.get(location);
-				HoneyBeeConstants.costHM.put(request, ((locCost[0]*cpu)+(locCost[1]*storage)+(locCost[2]*ram)));
+				Double[] reqValues = new Double[6];
+				reqValues[0] = Double.parseDouble(String.valueOf(request));
+				reqValues[1] = ((locCost[0]*cpu*time)+(locCost[1]*storage*time)+(locCost[2]*ram*time));
+				reqValues[2] = cpu;
+				reqValues[3] = storage;
+				reqValues[4] = ram;
+				reqValues[5] = Double.parseDouble(String.valueOf(location));
+				HoneyBeeConstants.costHM.put(request, reqValues);
 				HoneyBeeAlgorithm.getInstance().setReqCost(HoneyBeeConstants.costHM);
 				//cost ends
-				
+								
 				//				int status = forwardRequest(HoneyBeeConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
 				int status=200; //TODO temporary..since no actual servers...later on uncomment above line and comment this line
 								
@@ -202,9 +209,16 @@ public class RequestController {
 				//calculate cost for this request
 				Double[] locCost = new Double[3];
 				locCost=AntConstants.locationCost.get(location);
-				AntConstants.costHM.put(request, ((locCost[0]*cpu)+(locCost[1]*storage)+(locCost[2]*ram)));
+				Double[] reqValues = new Double[6];
+				reqValues[0] = Double.parseDouble(String.valueOf(request));
+				reqValues[1] = ((locCost[0]*cpu*time)+(locCost[1]*storage*time)+(locCost[2]*ram*time));
+				reqValues[2] = cpu;
+				reqValues[3] = storage;
+				reqValues[4] = ram;
+				reqValues[5] = Double.parseDouble(String.valueOf(location));
+				AntConstants.costHM.put(request, reqValues);
 				AntAlgorithm.getInstance().setReqCost(AntConstants.costHM);
-				//cost ends				
+				//cost ends			
 				
 				System.out.println("Printing pheromone table.");
 				aa.printPheromoneTable();
@@ -237,9 +251,16 @@ public class RequestController {
 				//calculate cost for this request
 				Double[] locCost = new Double[3];
 				locCost=LocationAwareConstants.locationCost.get(location);
-				LocationAwareConstants.costHM.put(request, ((locCost[0]*cpu)+(locCost[1]*storage)+(locCost[2]*ram)));
+				Double[] reqValues = new Double[6];
+				reqValues[0] = Double.parseDouble(String.valueOf(request));
+				reqValues[1] = ((locCost[0]*cpu*time)+(locCost[1]*storage*time)+(locCost[2]*ram*time));
+				reqValues[2] = cpu;
+				reqValues[3] = storage;
+				reqValues[4] = ram;
+				reqValues[5] = Double.parseDouble(String.valueOf(location));
+				LocationAwareConstants.costHM.put(request, reqValues);
 				LocationAwareAlgorithm.getInstance().setReqCost(LocationAwareConstants.costHM);
-				//cost ends
+				//cost ends	
 				
 				//				TODO uncomment below line
 				//				int status = forwardRequest(HoneyBeeConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
@@ -267,9 +288,16 @@ public class RequestController {
 						//calculate cost for this request
 						Double[] locCost = new Double[3];
 						locCost=PSOConstants.locationCost.get(location);
-						PSOConstants.costHM.put(request, ((locCost[0]*cpu)+(locCost[1]*storage)+(locCost[2]*ram)));
+						Double[] reqValues = new Double[6];
+						reqValues[0] = Double.parseDouble(String.valueOf(request));
+						reqValues[1] = ((locCost[0]*cpu*time)+(locCost[1]*storage*time)+(locCost[2]*ram*time));
+						reqValues[2] = cpu;
+						reqValues[3] = storage;
+						reqValues[4] = ram;
+						reqValues[5] = Double.parseDouble(String.valueOf(location));
+						PSOConstants.costHM.put(request, reqValues);
 						PSOAlgorithm.getInstance().setReqCost(PSOConstants.costHM);
-						//cost ends
+						//cost ends	
 						
 						//int status = 200;
 						if(status == 200) {
@@ -1042,41 +1070,73 @@ public class RequestController {
 
 		if(algoIdentifier.equals("1")){
 			System.out.println("in algo = 1");
-			Iterator<Entry<Integer, Double>> it = HoneyBeeAlgorithm.getInstance().getReqCost().entrySet().iterator();
+			Iterator<Entry<Integer, Double[]>> it = HoneyBeeAlgorithm.getInstance().getReqCost().entrySet().iterator();
 			while (it.hasNext()) {
-				Map.Entry<Integer, Double> pair = (Map.Entry<Integer, Double>)it.next();
+				Map.Entry<Integer, Double[]> pair = (Map.Entry<Integer, Double[]>)it.next();
 				if(pair.getKey()==Integer.parseInt(reqNo)){
-					jArr.add(pair.getValue());
+					Double[] reqVals=new Double[6];
+					reqVals=pair.getValue();
+					
+					jArr.add(Integer.parseInt(reqNo));
+					jArr.add(reqVals[1]);
+					jArr.add(reqVals[2]);
+					jArr.add(reqVals[3]);
+					jArr.add(reqVals[4]);
+					jArr.add(reqVals[5].intValue());
 					break;
 				}
 			}
 		}else if(algoIdentifier.equals("2")){
 			System.out.println("in algo = 2");
-			Iterator<Entry<Integer, Double>> it = AntAlgorithm.getInstance().getReqCost().entrySet().iterator();
+			Iterator<Entry<Integer, Double[]>> it = AntAlgorithm.getInstance().getReqCost().entrySet().iterator();
 			while (it.hasNext()) {
-				Map.Entry<Integer, Double> pair = (Map.Entry<Integer, Double>)it.next();
+				Map.Entry<Integer, Double[]> pair = (Map.Entry<Integer, Double[]>)it.next();
 				if(pair.getKey()==Integer.parseInt(reqNo)){
-					jArr.add(pair.getValue());
+					Double[] reqVals=new Double[6];
+					reqVals=pair.getValue();
+					
+					jArr.add(Integer.parseInt(reqNo));
+					jArr.add(reqVals[1]);
+					jArr.add(reqVals[2]);
+					jArr.add(reqVals[3]);
+					jArr.add(reqVals[4]);
+					jArr.add(reqVals[5].intValue());
 					break;
 				}
 			}
 		}else if(algoIdentifier.equals("3")){
 			System.out.println("in algo = 3");
-			Iterator<Entry<Integer, Double>> it = LocationAwareAlgorithm.getInstance().getReqCost().entrySet().iterator();
+			Iterator<Entry<Integer, Double[]>> it = LocationAwareAlgorithm.getInstance().getReqCost().entrySet().iterator();
 			while (it.hasNext()) {
-				Map.Entry<Integer, Double> pair = (Map.Entry<Integer, Double>)it.next();
+				Map.Entry<Integer, Double[]> pair = (Map.Entry<Integer, Double[]>)it.next();
 				if(pair.getKey()==Integer.parseInt(reqNo)){
-					jArr.add(pair.getValue());
+					Double[] reqVals=new Double[6];
+					reqVals=pair.getValue();
+					
+					jArr.add(Integer.parseInt(reqNo));
+					jArr.add(reqVals[1]);
+					jArr.add(reqVals[2]);
+					jArr.add(reqVals[3]);
+					jArr.add(reqVals[4]);
+					jArr.add(reqVals[5].intValue());
 					break;
 				}
 			}
 		}else if(algoIdentifier.equals("4")){
 			System.out.println("in algo = 4");
-			Iterator<Entry<Integer, Double>> it = PSOAlgorithm.getInstance().getReqCost().entrySet().iterator();
+			Iterator<Entry<Integer, Double[]>> it = PSOAlgorithm.getInstance().getReqCost().entrySet().iterator();
 			while (it.hasNext()) {
-				Map.Entry<Integer, Double> pair = (Map.Entry<Integer, Double>)it.next();
+				Map.Entry<Integer, Double[]> pair = (Map.Entry<Integer, Double[]>)it.next();
 				if(pair.getKey()==Integer.parseInt(reqNo)){
-					jArr.add(pair.getValue());
+					Double[] reqVals=new Double[6];
+					reqVals=pair.getValue();
+					
+					jArr.add(Integer.parseInt(reqNo));
+					jArr.add(reqVals[1]);
+					jArr.add(reqVals[2]);
+					jArr.add(reqVals[3]);
+					jArr.add(reqVals[4]);
+					jArr.add(reqVals[5].intValue());
 					break;
 				}
 			}
