@@ -280,11 +280,11 @@ public class RequestController {
 					try{
 						System.out.println("Start:"+ System.currentTimeMillis());
 						PSOAlgorithm psoAlgorithm = PSOAlgorithm.getInstance();
-						int location = psoAlgorithm.runPSOAlgorithm(cpu,storage,ram,time,request);
+						int location = psoAlgorithm.runPSOAlgorithm(cpu,storage,ram,time,request,zone);
 						PSOAlgorithm.getInstance().setRequest(PSOAlgorithm.getInstance().getRequest() + 1);
 						request = PSOAlgorithm.getInstance().getRequest();
-						int status = forwardRequest(PSOConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
-						
+//						int status = forwardRequest(PSOConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
+						int status = 200;
 						//calculate cost for this request
 						Double[] locCost = new Double[3];
 						locCost=PSOConstants.locationCost.get(location);

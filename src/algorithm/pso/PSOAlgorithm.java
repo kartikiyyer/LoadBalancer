@@ -1,5 +1,6 @@
 package algorithm.pso;
 import algorithm.ant.AntConstants;
+import algorithm.location.LocationAwareConstants;
 import algorithm.pso.*;
 
 import java.text.SimpleDateFormat;
@@ -128,12 +129,12 @@ private HashMap<Integer, Double[]> reqCost = new HashMap<Integer,Double[]>();
 		this.request = request;
 	}
 	
-	public int runPSOAlgorithm(double cpu, double storage, double ram, double time,int request)
+	public int runPSOAlgorithm(double cpu, double storage, double ram, double time,int request, int zone)
 	{
 		location = randomInt(0, numOfVm);
 		System.out.println("In runPSOAlgorithm");
-
-		optimize(cpu,storage,ram,time);
+		//init();
+		optimize(cpu,storage,ram,time,zone);
 
 
 		return location;
@@ -286,19 +287,27 @@ private HashMap<Integer, Double[]> reqCost = new HashMap<Integer,Double[]>();
 
 	}
 
-	public void optimize(double cpu, double storage, double ram, double time)
+	public void optimize(double cpu, double storage, double ram, double time,int zone)
 	{
 		//int[] tempArr;
 		System.out.println("In Optimize.....");
 		ArrayList<Integer> tempArr = new ArrayList<Integer>();
-		for(int i=1;i<=numOfVm;i++)
+		//changes - new code
+		
+		HashMap<Integer, int[]> tempZoneWiseLocNo = PSOConstants.getInstance().getZoneLocations();
+		int[] currVal = tempZoneWiseLocNo.get(zone);
+		
+		for(int i=currVal[0];i<currVal[0]+currVal.length;i++)
 		{
 			if(cpu < currentCPUState.get(i) && storage < currentStorageState.get(i) && ram <currentRAMState.get(i))
 			{
+				//tempMap.put(i, PSOConstants.getInstance().geoLocation.get(i));
 				tempArr.add(i);
+//				System.out.println("In runLocationAwareAlgorithm: TempLocation<key>:"+i+" <Lattitude>:"+LocationAwareConstants.getInstance().geoLocation.get(i)[0]+" <Longitude>:"+LocationAwareConstants.getInstance().geoLocation.get(i)[1]);
 			}
 
 		}
+		
 		
 		location = tempArr.get(random.nextInt(tempArr.size()));
 
