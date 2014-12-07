@@ -86,15 +86,15 @@ public class AntConstants {
 		cost[2]=0.00015;
 		locationCost.put(9, cost);
 		
-		locations.put(1, "ubuntu-mc-1.cloudapp.net");
-		locations.put(2, "ubuntu-mc-2.cloudapp.net");
-		locations.put(3, "ubuntu-mc-3.cloudapp.net");
-		locations.put(4, "ubuntu-mc-4.cloudapp.net");
-		locations.put(5, "ubuntu-mc-5.cloudapp.net");		
-		locations.put(6, "ubuntu-mc-6.cloudapp.net");
-		locations.put(7, "ubuntu-mc-7.cloudapp.net");
-		locations.put(8, "ubuntu-mc-8.cloudapp.net");
-		locations.put(9, "ubuntu-mc-9.cloudapp.net");
+		locations.put(1, "ubuntu-mc-1-server.cloudapp.net");
+		locations.put(2, "ubuntu-mc-2-server.cloudapp.net");
+		locations.put(3, "ubuntu-mc-3-server.cloudapp.net");
+		locations.put(4, "ubuntu-mc-4-server.cloudapp.net");
+		locations.put(5, "ubuntu-mc-5-server.cloudapp.net");
+		locations.put(6, "ubuntu-mc-1-cmpe281.cloudapp.net");
+		locations.put(7, "ubuntu-mc-7-server.cloudapp.net");
+		locations.put(8, "ubuntu-mc-8-server.cloudapp.net");
+		locations.put(9, "ubuntu-mc-9-server.cloudapp.net");
 		
 		
 		

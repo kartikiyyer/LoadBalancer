@@ -154,23 +154,23 @@ public class LocationAwareConstants {
 		geoLocation.put(8,laLn8);
 		geoLocation.put(9,laLn9);
 		
-		locations.put(1, "ubuntu-mc-1.cloudapp.net");
-		locations.put(2, "ubuntu-mc-2.cloudapp.net");
-		locations.put(3, "ubuntu-mc-3.cloudapp.net");
+		locations.put(1, "ubuntu-mc-1-server.cloudapp.net");
+		locations.put(2, "ubuntu-mc-2-server.cloudapp.net");
+		locations.put(3, "ubuntu-mc-3-server.cloudapp.net");
 		int[] locArr=new int[] {1,2,3}; 
 		zoneLocations.put(1, locArr);
 		noOfLocationsWrtZone.put(1, locArr.length);
 		
-		locations.put(4, "ubuntu-mc-4.cloudapp.net");
-		locations.put(5, "ubuntu-mc-5.cloudapp.net");
-		locations.put(6, "ubuntu-mc-6.cloudapp.net");
+		locations.put(4, "ubuntu-mc-4-server.cloudapp.net");
+		locations.put(5, "ubuntu-mc-5-server.cloudapp.net");
+		locations.put(6, "ubuntu-mc-1-cmpe281.cloudapp.net");
 		locArr=new int[] {4,5,6}; 
 		zoneLocations.put(2, locArr);
 		noOfLocationsWrtZone.put(2, locArr.length);
 		
-		locations.put(7, "ubuntu-mc-7.cloudapp.net");
-		locations.put(8, "ubuntu-mc-8.cloudapp.net");
-		locations.put(9, "ubuntu-mc-9.cloudapp.net");
+		locations.put(7, "ubuntu-mc-7-server.cloudapp.net");
+		locations.put(8, "ubuntu-mc-8-server.cloudapp.net");
+		locations.put(9, "ubuntu-mc-9-server.cloudapp.net");
 		locArr=new int[] {7,8,9}; 
 		zoneLocations.put(3, locArr);
 		noOfLocationsWrtZone.put(3, locArr.length);
