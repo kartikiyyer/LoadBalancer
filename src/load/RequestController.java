@@ -172,7 +172,7 @@ public class RequestController {
 				//cost ends
 								
 				int status = forwardRequest(HoneyBeeConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
-				//int status=200; //TODO temporary..since no actual servers...later on uncomment above line and comment this line
+//				int status=200; //TODO temporary..since no actual servers...later on uncomment above line and comment this line
 								
 				if(status == 200) {
 					HoneyBeeAlgorithm.getInstance().processTimeLogForRequest(request,location,requestType);
@@ -1012,6 +1012,7 @@ public class RequestController {
 				JSONArray jArr = new JSONArray();
 				ArrayList lst = new ArrayList();
 				Iterator<Entry<Integer, HashMap<Integer, List>>> it = HoneyBeeAlgorithm.getInstance().locationAverageResponseTimeLogTable.entrySet().iterator();
+				System.out.println("***locationAverageResponseTimeLogTable*** "+HoneyBeeAlgorithm.getInstance().locationAverageResponseTimeLogTable);
 				while (it.hasNext()) {
 					Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
 					HashMap hm=HoneyBeeAlgorithm.getInstance().locationAverageResponseTimeLogTable.get(pair.getKey());
@@ -1020,11 +1021,11 @@ public class RequestController {
 					while (itr1.hasNext()) {
 						Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
 						ArrayList al = (ArrayList) hm.get(pair1.getKey());
-						if(!al.isEmpty() && Double.parseDouble(al.get(0).toString())!=0){
+//						if(!al.isEmpty() && Double.parseDouble(al.get(0).toString())!=0){
 							lst.add(pair.getKey());
 							lst.add(pair1.getKey());
 							lst.add(al.get(0));
-						}
+//						}
 						if(!lst.isEmpty()){
 							jArr.add(lst);
 							lst = new ArrayList<>();
@@ -1047,11 +1048,11 @@ public class RequestController {
 					while (itr1.hasNext()) {
 						Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
 						ArrayList al = (ArrayList) hm.get(pair1.getKey());
-						if(!al.isEmpty() && Double.parseDouble(al.get(0).toString())!=0){
+//						if(!al.isEmpty() && Double.parseDouble(al.get(0).toString())!=0){
 							lst.add(pair.getKey());
 							lst.add(pair1.getKey());
 							lst.add(al.get(0));
-						}
+//						}
 						if(!lst.isEmpty()){
 							jArr.add(lst);
 							lst = new ArrayList<>();
@@ -1074,11 +1075,11 @@ public class RequestController {
 					while (itr1.hasNext()) {
 						Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
 						ArrayList al = (ArrayList) hm.get(pair1.getKey());
-						if(!al.isEmpty() && Double.parseDouble(al.get(0).toString())!=0){
+//						if(!al.isEmpty() && Double.parseDouble(al.get(0).toString())!=0){
 							lst.add(pair.getKey());
 							lst.add(pair1.getKey());
 							lst.add(al.get(0));
-						}
+//						}
 						if(!lst.isEmpty()){
 							jArr.add(lst);
 							lst = new ArrayList<>();
@@ -1101,11 +1102,11 @@ public class RequestController {
 					while (itr1.hasNext()) {
 						Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
 						ArrayList al = (ArrayList) hm.get(pair1.getKey());
-						if(!al.isEmpty() && Double.parseDouble(al.get(0).toString())!=0){
+//						if(!al.isEmpty() && Double.parseDouble(al.get(0).toString())!=0){
 							lst.add(pair.getKey());
 							lst.add(pair1.getKey());
 							lst.add(al.get(0));
-						}
+//						}
 						if(!lst.isEmpty()){
 							jArr.add(lst);
 							lst = new ArrayList<>();
