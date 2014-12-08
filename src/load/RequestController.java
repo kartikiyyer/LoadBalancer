@@ -171,8 +171,8 @@ public class RequestController {
 				HoneyBeeAlgorithm.getInstance().setReqCost(HoneyBeeConstants.costHM);
 				//cost ends
 								
-				//				int status = forwardRequest(HoneyBeeConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
-				int status=200; //TODO temporary..since no actual servers...later on uncomment above line and comment this line
+				int status = forwardRequest(HoneyBeeConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
+//				int status=200; //TODO temporary..since no actual servers...later on uncomment above line and comment this line
 								
 				if(status == 200) {
 					HoneyBeeAlgorithm.getInstance().processTimeLogForRequest(request,location,requestType);
@@ -224,7 +224,7 @@ public class RequestController {
 				aa.printPheromoneTable();
 
 				int status = forwardRequest(AntConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
-				status = 200;
+				//status = 200;
 				if(status == 200) {
 					AntAlgorithm.getInstance().processTimeLogForRequest(request,location,requestType);
 					AntConstants.getInstance().increaseLocationRequestCount(location);
@@ -263,9 +263,9 @@ public class RequestController {
 				//cost ends	
 				
 				//				TODO uncomment below line
-				//				int status = forwardRequest(HoneyBeeConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
+								int status = forwardRequest(HoneyBeeConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
 				//				TODO for development purpose onle, comment below line in production
-				int status=200;
+//				int status=200;
 				if(status == 200) {
 					LocationAwareAlgorithm.getInstance().processTimeLogForRequest(request,location,requestType);
 				}
@@ -283,8 +283,7 @@ public class RequestController {
 						int location = psoAlgorithm.runPSOAlgorithm(cpu,storage,ram,time,request,zone);
 						PSOAlgorithm.getInstance().setRequest(PSOAlgorithm.getInstance().getRequest() + 1);
 						request = PSOAlgorithm.getInstance().getRequest();
-//						int status = forwardRequest(PSOConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
-						int status = 200;
+						
 						//calculate cost for this request
 						Double[] locCost = new Double[3];
 						locCost=PSOConstants.locationCost.get(location);
@@ -298,8 +297,9 @@ public class RequestController {
 						PSOConstants.costHM.put(request, reqValues);
 						PSOAlgorithm.getInstance().setReqCost(PSOConstants.costHM);
 						//cost ends	
-						
-						//int status = 200;
+						int status = forwardRequest(PSOConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
+//						int status = 200;
+//						int status = 200;
 						if(status == 200) {
 							PSOAlgorithm.getInstance().processTimeLogForRequest(request,location,requestType);
 						}

@@ -2,9 +2,6 @@ package algorithm.location;
 
 import java.util.HashMap;
 
-import algorithm.pso.PSOAlgorithm;
-import algorithm.pso.PSOConstants;
-
 public class LocationAwareConstants {
 	
 	/*HashMap<Integer, Double[]> geoLocation = new HashMap<Integer,Double[]>();

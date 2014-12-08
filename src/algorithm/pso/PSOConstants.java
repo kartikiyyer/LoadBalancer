@@ -78,18 +78,7 @@ public class PSOConstants {
 		cost[1]=0.0001;
 		cost[2]=0.00015;
 		locationCost.put(9, cost);
-		Double laLn1[] = new Double[]{31.7157380,-120.1610840};
-		Double laLn2[] = new Double[]{28.712784,-110.005941};
-		Double laLn3[] = new Double[]{34.712784,-100.005941};
-		
-		Double laLn4[] = new Double[]{45.712784,-75.005941};
-		Double laLn5[] = new Double[]{41.7157380,-69.1610840};
-		Double laLn6[] = new Double[]{38.712784,-84.005941};
-		
-		Double laLn7[] = new Double[]{40.712784,-54.005941};
-		Double laLn8[] = new Double[]{39.712784,-58.005941};
-		Double laLn9[] = new Double[]{49.712784,-64.005941};
-		
+			
 		
 		//new changes for xone
 		locations.put(1, "ubuntu-mc-1-server.cloudapp.net");
