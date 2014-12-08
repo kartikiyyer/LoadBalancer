@@ -24,6 +24,9 @@ public class AntConstants {
 	public static HashMap<Integer, Double[]> locationCost = new HashMap<Integer, Double[]>();
 	public static HashMap<Integer, Double[]> costHM = new HashMap<Integer, Double[]>();
 	
+	//{location->[cpu,hd,ram]}
+	public static HashMap<Integer, Double[]> currentUsage = new HashMap<Integer, Double[]>();
+	
 	private HashMap<Integer, ArrayList<Integer>> zones = new HashMap<Integer, ArrayList<Integer>>();
 	
 	private AntConstants() {
@@ -252,12 +255,24 @@ public class AntConstants {
 		this.locationCPU.put(location, this.locationCPU.get(location) + locationCPU);
 		this.locationHD.put(location, this.locationHD.get(location) + locationHD);
 		this.locationRAM.put(location, this.locationRAM.get(location) + locationRAM);
+		
+		Double[] currUsage=new Double[3];
+		currUsage[0]=this.locationCPU.get(location);
+		currUsage[1]=this.locationHD.get(location);
+		currUsage[2]=this.locationRAM.get(location);
+		currentUsage.put(location, currUsage);
 	}
 	
 	public void decreaseLocationDetails(int location, double locationCPU, double locationHD, double locationRAM) {
 		this.locationCPU.put(location, this.locationCPU.get(location) - locationCPU);
 		this.locationHD.put(location, this.locationHD.get(location) - locationHD);
 		this.locationRAM.put(location, this.locationRAM.get(location) - locationRAM);
+		
+		Double[] currUsage=new Double[3];
+		currUsage[0]=this.locationCPU.get(location);
+		currUsage[1]=this.locationHD.get(location);
+		currUsage[2]=this.locationRAM.get(location);
+		currentUsage.put(location, currUsage);
 	}
 	
 	public void increaseLocationMaxDetails(int location, double locationCPU, double locationHD, double locationRAM) {

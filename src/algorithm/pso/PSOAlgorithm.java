@@ -184,13 +184,24 @@ private HashMap<Integer, Double[]> reqCost = new HashMap<Integer,Double[]>();
 		currentStorageState.put(vm, currentStorageState.get(vm)-hd);
 		currentRAMState.put(vm, currentRAMState.get(vm)- ram);
 		System.out.println("After Updating: "+currentCPUState.get(vm)+" "+currentCPUState.get(vm)+" "+currentCPUState.get(vm));
-	
+		
+		Double[] currUsage=new Double[3];
+		currUsage[0]=this.currentCPUState.get(location);
+		currUsage[1]=this.currentStorageState.get(location);
+		currUsage[2]=this.currentRAMState.get(location);
+		PSOConstants.currentUsage.put(location, currUsage);	
 	}
 	
 	public void decreaseLocationDetails(int location, double currentCPUState, double currentStorageState, double currentRAMState) {
 		this.currentCPUState.put(location, this.currentCPUState.get(location) + currentCPUState);
 		this.currentStorageState.put(location, this.currentStorageState.get(location) + currentStorageState);
 		this.currentRAMState.put(location, this.currentRAMState.get(location) + currentRAMState);
+		
+		Double[] currUsage=new Double[3];
+		currUsage[0]=this.currentCPUState.get(location);
+		currUsage[1]=this.currentStorageState.get(location);
+		currUsage[2]=this.currentRAMState.get(location);
+		PSOConstants.currentUsage.put(location, currUsage);
 	}
 	
 	

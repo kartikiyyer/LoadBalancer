@@ -65,7 +65,7 @@ public class RequestController {
 		HashMap<Integer, Double> locationMaxCPU = new HashMap<Integer, Double>();
 		HashMap<Integer, Double> locationMaxHD = new HashMap<Integer, Double>();
 		HashMap<Integer, Double> locationMaxRAM = new HashMap<Integer, Double>();
-		
+
 		Iterator<Map.Entry<Integer, String>> itr = locations.entrySet().iterator();
 
 		while (itr.hasNext()) {
@@ -156,7 +156,7 @@ public class RequestController {
 				//				request++;
 				System.out.println("request number: "+request);
 				System.out.println("Sending on location: "+HoneyBeeConstants.getInstance().getLocations().get(location));
-				
+
 				//calculate cost for this request
 				Double[] locCost = new Double[3];
 				locCost=HoneyBeeConstants.locationCost.get(location);
@@ -170,10 +170,10 @@ public class RequestController {
 				HoneyBeeConstants.costHM.put(request, reqValues);
 				HoneyBeeAlgorithm.getInstance().setReqCost(HoneyBeeConstants.costHM);
 				//cost ends
-								
+
 				int status = forwardRequest(HoneyBeeConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
-//				int status=200; //TODO temporary..since no actual servers...later on uncomment above line and comment this line
-								
+				//				int status=200; //TODO temporary..since no actual servers...later on uncomment above line and comment this line
+
 				if(status == 200) {
 					HoneyBeeAlgorithm.getInstance().processTimeLogForRequest(request,location,requestType);
 					HoneyBeeConstants.getInstance().increaseLocationRequestCount(location);
@@ -219,7 +219,7 @@ public class RequestController {
 				AntConstants.costHM.put(request, reqValues);
 				AntAlgorithm.getInstance().setReqCost(AntConstants.costHM);
 				//cost ends			
-				
+
 				System.out.println("Printing pheromone table.");
 				aa.printPheromoneTable();
 
@@ -235,7 +235,7 @@ public class RequestController {
 			}
 		}
 
-		 
+
 
 		else if(algoIdentifier == 3){
 			try{
@@ -247,7 +247,7 @@ public class RequestController {
 				temp=location;
 				LocationAwareAlgorithm.getInstance().setRequest(LocationAwareAlgorithm.getInstance().getRequest() + 1);
 				request = LocationAwareAlgorithm.getInstance().getRequest();
-				
+
 				//calculate cost for this request
 				Double[] locCost = new Double[3];
 				locCost=LocationAwareConstants.locationCost.get(location);
@@ -261,11 +261,11 @@ public class RequestController {
 				LocationAwareConstants.costHM.put(request, reqValues);
 				LocationAwareAlgorithm.getInstance().setReqCost(LocationAwareConstants.costHM);
 				//cost ends	
-				
+
 				//				TODO uncomment below line
-								int status = forwardRequest(HoneyBeeConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
+				int status = forwardRequest(HoneyBeeConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
 				//				TODO for development purpose onle, comment below line in production
-//				int status=200;
+				//				int status=200;
 				if(status == 200) {
 					LocationAwareAlgorithm.getInstance().processTimeLogForRequest(request,location,requestType);
 				}
@@ -275,40 +275,40 @@ public class RequestController {
 			}
 
 		}
-			//PSO Algorithm
-				else if(algoIdentifier == 4){
-					try{
-						System.out.println("Start:"+ System.currentTimeMillis());
-						PSOAlgorithm psoAlgorithm = PSOAlgorithm.getInstance();
-						int location = psoAlgorithm.runPSOAlgorithm(cpu,storage,ram,time,request,zone);
-						PSOAlgorithm.getInstance().setRequest(PSOAlgorithm.getInstance().getRequest() + 1);
-						request = PSOAlgorithm.getInstance().getRequest();
-						
-						//calculate cost for this request
-						Double[] locCost = new Double[3];
-						locCost=PSOConstants.locationCost.get(location);
-						Double[] reqValues = new Double[6];
-						reqValues[0] = Double.parseDouble(String.valueOf(request));
-						reqValues[1] = ((locCost[0]*cpu*time)+(locCost[1]*storage*time)+(locCost[2]*ram*time));
-						reqValues[2] = cpu;
-						reqValues[3] = storage;
-						reqValues[4] = ram;
-						reqValues[5] = Double.parseDouble(String.valueOf(location));
-						PSOConstants.costHM.put(request, reqValues);
-						PSOAlgorithm.getInstance().setReqCost(PSOConstants.costHM);
-						//cost ends	
-						int status = forwardRequest(PSOConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
-//						int status = 200;
-//						int status = 200;
-						if(status == 200) {
-							PSOAlgorithm.getInstance().processTimeLogForRequest(request,location,requestType);
-						}
-						System.out.println("End:"+ System.currentTimeMillis());
-					}catch(Exception e){
-						e.printStackTrace();
-					}
+		//PSO Algorithm
+		else if(algoIdentifier == 4){
+			try{
+				System.out.println("Start:"+ System.currentTimeMillis());
+				PSOAlgorithm psoAlgorithm = PSOAlgorithm.getInstance();
+				int location = psoAlgorithm.runPSOAlgorithm(cpu,storage,ram,time,request,zone);
+				PSOAlgorithm.getInstance().setRequest(PSOAlgorithm.getInstance().getRequest() + 1);
+				request = PSOAlgorithm.getInstance().getRequest();
 
+				//calculate cost for this request
+				Double[] locCost = new Double[3];
+				locCost=PSOConstants.locationCost.get(location);
+				Double[] reqValues = new Double[6];
+				reqValues[0] = Double.parseDouble(String.valueOf(request));
+				reqValues[1] = ((locCost[0]*cpu*time)+(locCost[1]*storage*time)+(locCost[2]*ram*time));
+				reqValues[2] = cpu;
+				reqValues[3] = storage;
+				reqValues[4] = ram;
+				reqValues[5] = Double.parseDouble(String.valueOf(location));
+				PSOConstants.costHM.put(request, reqValues);
+				PSOAlgorithm.getInstance().setReqCost(PSOConstants.costHM);
+				//cost ends	
+				int status = forwardRequest(PSOConstants.getInstance().getLocations().get(location), String.valueOf(location), String.valueOf(request), String.valueOf(cpu), String.valueOf(storage), String.valueOf(ram), String.valueOf(time), algoIdentifier, requestType);
+				//						int status = 200;
+				//						int status = 200;
+				if(status == 200) {
+					PSOAlgorithm.getInstance().processTimeLogForRequest(request,location,requestType);
 				}
+				System.out.println("End:"+ System.currentTimeMillis());
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+
+		}
 
 
 		return "";
@@ -804,429 +804,523 @@ public class RequestController {
 
 	// Below are all graph related APIs
 
-		@GET
-		@Path("/graphs/reqNoReqTypeRespTime")
-		public String getReqNoReqTypeRespTime(@QueryParam ("algoIdentifier") String algoIdentifier){
+	@GET
+	@Path("/graphs/reqNoReqTypeRespTime")
+	public String getReqNoReqTypeRespTime(@QueryParam ("algoIdentifier") String algoIdentifier){
 
-			
 
-			if(algoIdentifier.equals("1")){
-				JSONObject jo = new JSONObject();
-				JSONArray jArr = new JSONArray();
-				ArrayList lst = new ArrayList();
-				Iterator<Entry<Integer, HashMap<Integer, List>>> it = HoneyBeeAlgorithm.getInstance().getInstance().reqResTimeLogTable.entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
-					HashMap hm=HoneyBeeAlgorithm.getInstance().reqResTimeLogTable.get(pair.getKey());
-					Iterator<Entry<Integer, HashMap<Integer, List>>> itr1 = hm.entrySet().iterator();
-					while (itr1.hasNext()) {
-						Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
-						ArrayList al = (ArrayList) hm.get(pair1.getKey());
-						lst = new ArrayList<>();
-						lst.add(pair.getKey());
-						lst.add(pair1.getKey());
-						lst.add(al.get(3));
-					}
-					jArr.add(lst);
+
+		if(algoIdentifier.equals("1")){
+			JSONObject jo = new JSONObject();
+			JSONArray jArr = new JSONArray();
+			ArrayList lst = new ArrayList();
+			Iterator<Entry<Integer, HashMap<Integer, List>>> it = HoneyBeeAlgorithm.getInstance().getInstance().reqResTimeLogTable.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
+				HashMap hm=HoneyBeeAlgorithm.getInstance().reqResTimeLogTable.get(pair.getKey());
+				Iterator<Entry<Integer, HashMap<Integer, List>>> itr1 = hm.entrySet().iterator();
+				while (itr1.hasNext()) {
+					Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
+					ArrayList al = (ArrayList) hm.get(pair1.getKey());
+					lst = new ArrayList<>();
+					lst.add(pair.getKey());
+					lst.add(pair1.getKey());
+					lst.add(al.get(3));
 				}
-				jo.put("ReqNoReqTypeRespTime", jArr);
-				System.out.println("##reqNoReqTypeRespTime##: "+jo);
-				return jo.toString();
-			}else if(algoIdentifier.equals("2")){
-				JSONObject jo = new JSONObject();
-				JSONArray jArr = new JSONArray();
-				ArrayList lst = new ArrayList();
-				Iterator<Entry<Integer, HashMap<Integer, List>>> it = AntAlgorithm.getInstance().reqResTimeLogTable.entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
-					HashMap hm=AntAlgorithm.getInstance().reqResTimeLogTable.get(pair.getKey());
-					Iterator<Entry<Integer, HashMap<Integer, List>>> itr1 = hm.entrySet().iterator();
-					while (itr1.hasNext()) {
-						Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
-						ArrayList al = (ArrayList) hm.get(pair1.getKey());
-						lst = new ArrayList<>();
-						lst.add(pair.getKey());
-						lst.add(pair1.getKey());
-						lst.add(al.get(3));
-					}
-					jArr.add(lst);
-				}
-				jo.put("ReqNoReqTypeRespTime", jArr);
-				System.out.println("##reqNoReqTypeRespTime##: "+jo);
-				return jo.toString();
-			}else if(algoIdentifier.equals("3")){
-				JSONObject jo = new JSONObject();
-				JSONArray jArr = new JSONArray();
-				ArrayList lst = new ArrayList();
-				Iterator<Entry<Integer, HashMap<Integer, List>>> it = LocationAwareAlgorithm.getInstance().reqResTimeLogTable.entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
-					HashMap hm=LocationAwareAlgorithm.getInstance().reqResTimeLogTable.get(pair.getKey());
-					Iterator<Entry<Integer, HashMap<Integer, List>>> itr1 = hm.entrySet().iterator();
-					while (itr1.hasNext()) {
-						Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
-						ArrayList al = (ArrayList) hm.get(pair1.getKey());
-						lst = new ArrayList<>();
-						lst.add(pair.getKey());
-						lst.add(pair1.getKey());
-						lst.add(al.get(3));
-					}
-					jArr.add(lst);
-				}
-				jo.put("ReqNoReqTypeRespTime", jArr);
-				System.out.println("##reqNoReqTypeRespTime##: "+jo);
-				return jo.toString();
-			}else{
-				JSONObject jo = new JSONObject();
-				JSONArray jArr = new JSONArray();
-				ArrayList lst = new ArrayList();
-				Iterator<Entry<Integer, HashMap<Integer, List>>> it = PSOAlgorithm.getInstance().reqResTimeLogTable.entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
-					HashMap hm=PSOAlgorithm.getInstance().reqResTimeLogTable.get(pair.getKey());
-					Iterator<Entry<Integer, HashMap<Integer, List>>> itr1 = hm.entrySet().iterator();
-					while (itr1.hasNext()) {
-						Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
-						ArrayList al = (ArrayList) hm.get(pair1.getKey());
-						lst = new ArrayList<>();
-						lst.add(pair.getKey());
-						lst.add(pair1.getKey());
-						lst.add(al.get(3));
-					}
-					jArr.add(lst);
-				}
-				jo.put("ReqNoReqTypeRespTime", jArr);
-				System.out.println("##reqNoReqTypeRespTime##: "+jo);
-				return jo.toString();
+				jArr.add(lst);
 			}
-
-			
-		}
-
-		@GET
-		@Path("/graphs/reqNoReqTypeLoc")
-		public String getReqNoReqTypeLoc(@QueryParam ("algoIdentifier") String algoIdentifier){
-			
-
-			if(algoIdentifier.equals("1")){
-				JSONObject jo = new JSONObject();
-				JSONArray jArr = new JSONArray();
-				ArrayList lst = new ArrayList();
-				Iterator<Entry<Integer, HashMap<Integer, List>>> it = HoneyBeeAlgorithm.getInstance().reqResTimeLogTable.entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
-					HashMap hm=HoneyBeeAlgorithm.getInstance().reqResTimeLogTable.get(pair.getKey());
-					Iterator<Entry<Integer, HashMap<Integer, List>>> itr1 = hm.entrySet().iterator();
-					while (itr1.hasNext()) {
-						Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
-						ArrayList al = (ArrayList) hm.get(pair1.getKey());
-						lst = new ArrayList<>();
-						lst.add(pair.getKey());
-						lst.add(pair1.getKey());
-						lst.add(al.get(0));
-					}
-					jArr.add(lst);
-				}
-				jo.put("ReqNoReqTypeLoc", jArr);
-				System.out.println("##reqNoReqTypeLoc##: "+jo);
-				return jo.toString();
-			}else if(algoIdentifier.equals("2")){
-				JSONObject jo = new JSONObject();
-				JSONArray jArr = new JSONArray();
-				ArrayList lst = new ArrayList();
-				Iterator<Entry<Integer, HashMap<Integer, List>>> it = AntAlgorithm.getInstance().reqResTimeLogTable.entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
-					HashMap hm=AntAlgorithm.getInstance().reqResTimeLogTable.get(pair.getKey());
-					Iterator<Entry<Integer, HashMap<Integer, List>>> itr1 = hm.entrySet().iterator();
-					while (itr1.hasNext()) {
-						Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
-						ArrayList al = (ArrayList) hm.get(pair1.getKey());
-						lst = new ArrayList<>();
-						lst.add(pair.getKey());
-						lst.add(pair1.getKey());
-						lst.add(al.get(0));
-					}
-					jArr.add(lst);
-				}	
-				jo.put("ReqNoReqTypeLoc", jArr);
-				System.out.println("##reqNoReqTypeLoc##: "+jo);
-				return jo.toString();
-			}else if(algoIdentifier.equals("3")){
-				JSONObject jo = new JSONObject();
-				JSONArray jArr = new JSONArray();
-				ArrayList lst = new ArrayList();
-				Iterator<Entry<Integer, HashMap<Integer, List>>> it = LocationAwareAlgorithm.getInstance().reqResTimeLogTable.entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
-					HashMap hm=LocationAwareAlgorithm.getInstance().reqResTimeLogTable.get(pair.getKey());
-					Iterator<Entry<Integer, HashMap<Integer, List>>> itr1 = hm.entrySet().iterator();
-					while (itr1.hasNext()) {
-						Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
-						ArrayList al = (ArrayList) hm.get(pair1.getKey());
-						lst = new ArrayList<>();
-						lst.add(pair.getKey());
-						lst.add(pair1.getKey());
-						lst.add(al.get(0));
-					}
-					jArr.add(lst);
-				}	
-				jo.put("ReqNoReqTypeLoc", jArr);
-				System.out.println("##reqNoReqTypeLoc##: "+jo);
-				return jo.toString();
-			}else{
-				JSONObject jo = new JSONObject();
-				JSONArray jArr = new JSONArray();
-				ArrayList lst = new ArrayList();
-				Iterator<Entry<Integer, HashMap<Integer, List>>> it = PSOAlgorithm.getInstance().reqResTimeLogTable.entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
-					HashMap hm=PSOAlgorithm.getInstance().reqResTimeLogTable.get(pair.getKey());
-					Iterator<Entry<Integer, HashMap<Integer, List>>> itr1 = hm.entrySet().iterator();
-					while (itr1.hasNext()) {
-						Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
-						ArrayList al = (ArrayList) hm.get(pair1.getKey());
-						lst = new ArrayList<>();
-						lst.add(pair.getKey());
-						lst.add(pair1.getKey());
-						lst.add(al.get(0));
-					}
-					jArr.add(lst);
-				}	
-				jo.put("ReqNoReqTypeLoc", jArr);
-				System.out.println("##reqNoReqTypeLoc##: "+jo);
-				return jo.toString();
-			}			
-
-			
-		}
-
-
-		@GET
-		@Path("/graphs/locReqTypeAvgResTime")
-		public String getLocReqTypeAvgResTime(@QueryParam ("algoIdentifier") String algoIdentifier){
-			
-
-			if(algoIdentifier.equals("1")){
-				JSONObject jo = new JSONObject();
-				JSONArray jArr = new JSONArray();
-				ArrayList lst = new ArrayList();
-				Iterator<Entry<Integer, HashMap<Integer, List>>> it = HoneyBeeAlgorithm.getInstance().locationAverageResponseTimeLogTable.entrySet().iterator();
-				System.out.println("***locationAverageResponseTimeLogTable*** "+HoneyBeeAlgorithm.getInstance().locationAverageResponseTimeLogTable);
-				while (it.hasNext()) {
-					Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
-					HashMap hm=HoneyBeeAlgorithm.getInstance().locationAverageResponseTimeLogTable.get(pair.getKey());
-					Iterator<Entry<Integer, HashMap<Integer, List>>> itr1 = hm.entrySet().iterator();
+			jo.put("ReqNoReqTypeRespTime", jArr);
+			System.out.println("##reqNoReqTypeRespTime##: "+jo);
+			return jo.toString();
+		}else if(algoIdentifier.equals("2")){
+			JSONObject jo = new JSONObject();
+			JSONArray jArr = new JSONArray();
+			ArrayList lst = new ArrayList();
+			Iterator<Entry<Integer, HashMap<Integer, List>>> it = AntAlgorithm.getInstance().reqResTimeLogTable.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
+				HashMap hm=AntAlgorithm.getInstance().reqResTimeLogTable.get(pair.getKey());
+				Iterator<Entry<Integer, HashMap<Integer, List>>> itr1 = hm.entrySet().iterator();
+				while (itr1.hasNext()) {
+					Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
+					ArrayList al = (ArrayList) hm.get(pair1.getKey());
 					lst = new ArrayList<>();
-					while (itr1.hasNext()) {
-						Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
-						ArrayList al = (ArrayList) hm.get(pair1.getKey());
-//						if(!al.isEmpty() && Double.parseDouble(al.get(0).toString())!=0){
-							lst.add(pair.getKey());
-							lst.add(pair1.getKey());
-							lst.add(al.get(0));
-//						}
-						if(!lst.isEmpty()){
-							jArr.add(lst);
-							lst = new ArrayList<>();
-						}
-					}
+					lst.add(pair.getKey());
+					lst.add(pair1.getKey());
+					lst.add(al.get(3));
 				}
-				jo.put("LocReqTypeAvgResTime", jArr);
-				System.out.println("##locReqTypeAvgResTime##: "+jo);
-				return jo.toString();
-			}else if(algoIdentifier.equals("2")){
-				JSONObject jo = new JSONObject();
-				JSONArray jArr = new JSONArray();
-				ArrayList lst = new ArrayList();
-				Iterator<Entry<Integer, HashMap<Integer, List>>> it = AntAlgorithm.getInstance().locationAverageResponseTimeLogTable.entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
-					HashMap hm=AntAlgorithm.getInstance().locationAverageResponseTimeLogTable.get(pair.getKey());
-					Iterator<Entry<Integer, HashMap<Integer, List>>> itr1 = hm.entrySet().iterator();
-					lst = new ArrayList<>();
-					while (itr1.hasNext()) {
-						Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
-						ArrayList al = (ArrayList) hm.get(pair1.getKey());
-//						if(!al.isEmpty() && Double.parseDouble(al.get(0).toString())!=0){
-							lst.add(pair.getKey());
-							lst.add(pair1.getKey());
-							lst.add(al.get(0));
-//						}
-						if(!lst.isEmpty()){
-							jArr.add(lst);
-							lst = new ArrayList<>();
-						}
-					}
-				}
-				jo.put("LocReqTypeAvgResTime", jArr);
-				System.out.println("##locReqTypeAvgResTime##: "+jo);
-				return jo.toString();
-			}else if(algoIdentifier.equals("3")){
-				JSONObject jo = new JSONObject();
-				JSONArray jArr = new JSONArray();
-				ArrayList lst = new ArrayList();
-				Iterator<Entry<Integer, HashMap<Integer, List>>> it = LocationAwareAlgorithm.getInstance().locationAverageResponseTimeLogTable.entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
-					HashMap hm=LocationAwareAlgorithm.getInstance().locationAverageResponseTimeLogTable.get(pair.getKey());
-					Iterator<Entry<Integer, HashMap<Integer, List>>> itr1 = hm.entrySet().iterator();
-					lst = new ArrayList<>();
-					while (itr1.hasNext()) {
-						Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
-						ArrayList al = (ArrayList) hm.get(pair1.getKey());
-//						if(!al.isEmpty() && Double.parseDouble(al.get(0).toString())!=0){
-							lst.add(pair.getKey());
-							lst.add(pair1.getKey());
-							lst.add(al.get(0));
-//						}
-						if(!lst.isEmpty()){
-							jArr.add(lst);
-							lst = new ArrayList<>();
-						}
-					}
-				}
-				jo.put("LocReqTypeAvgResTime", jArr);
-				System.out.println("##locReqTypeAvgResTime##: "+jo);
-				return jo.toString();			
-			}else{
-				JSONObject jo = new JSONObject();
-				JSONArray jArr = new JSONArray();
-				ArrayList lst = new ArrayList();
-				Iterator<Entry<Integer, HashMap<Integer, List>>> it = PSOAlgorithm.getInstance().locationAverageResponseTimeLogTable.entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
-					HashMap hm=PSOAlgorithm.getInstance().locationAverageResponseTimeLogTable.get(pair.getKey());
-					Iterator<Entry<Integer, HashMap<Integer, List>>> itr1 = hm.entrySet().iterator();
-					lst = new ArrayList<>();
-					while (itr1.hasNext()) {
-						Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
-						ArrayList al = (ArrayList) hm.get(pair1.getKey());
-//						if(!al.isEmpty() && Double.parseDouble(al.get(0).toString())!=0){
-							lst.add(pair.getKey());
-							lst.add(pair1.getKey());
-							lst.add(al.get(0));
-//						}
-						if(!lst.isEmpty()){
-							jArr.add(lst);
-							lst = new ArrayList<>();
-						}
-					}
-				}
-				jo.put("LocReqTypeAvgResTime", jArr);
-				System.out.println("##locReqTypeAvgResTime##: "+jo);
-				return jo.toString();
+				jArr.add(lst);
 			}
-
-			
+			jo.put("ReqNoReqTypeRespTime", jArr);
+			System.out.println("##reqNoReqTypeRespTime##: "+jo);
+			return jo.toString();
+		}else if(algoIdentifier.equals("3")){
+			JSONObject jo = new JSONObject();
+			JSONArray jArr = new JSONArray();
+			ArrayList lst = new ArrayList();
+			Iterator<Entry<Integer, HashMap<Integer, List>>> it = LocationAwareAlgorithm.getInstance().reqResTimeLogTable.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
+				HashMap hm=LocationAwareAlgorithm.getInstance().reqResTimeLogTable.get(pair.getKey());
+				Iterator<Entry<Integer, HashMap<Integer, List>>> itr1 = hm.entrySet().iterator();
+				while (itr1.hasNext()) {
+					Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
+					ArrayList al = (ArrayList) hm.get(pair1.getKey());
+					lst = new ArrayList<>();
+					lst.add(pair.getKey());
+					lst.add(pair1.getKey());
+					lst.add(al.get(3));
+				}
+				jArr.add(lst);
+			}
+			jo.put("ReqNoReqTypeRespTime", jArr);
+			System.out.println("##reqNoReqTypeRespTime##: "+jo);
+			return jo.toString();
+		}else{
+			JSONObject jo = new JSONObject();
+			JSONArray jArr = new JSONArray();
+			ArrayList lst = new ArrayList();
+			Iterator<Entry<Integer, HashMap<Integer, List>>> it = PSOAlgorithm.getInstance().reqResTimeLogTable.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
+				HashMap hm=PSOAlgorithm.getInstance().reqResTimeLogTable.get(pair.getKey());
+				Iterator<Entry<Integer, HashMap<Integer, List>>> itr1 = hm.entrySet().iterator();
+				while (itr1.hasNext()) {
+					Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
+					ArrayList al = (ArrayList) hm.get(pair1.getKey());
+					lst = new ArrayList<>();
+					lst.add(pair.getKey());
+					lst.add(pair1.getKey());
+					lst.add(al.get(3));
+				}
+				jArr.add(lst);
+			}
+			jo.put("ReqNoReqTypeRespTime", jArr);
+			System.out.println("##reqNoReqTypeRespTime##: "+jo);
+			return jo.toString();
 		}
-		
-		//cost graphs
-		@GET
-		@Path("/graphs/reqNoCost")
-		public String getReqNoCost(@QueryParam ("algoIdentifier") String algoIdentifier, @QueryParam ("reqNo") String reqNo){
-			
 
-			if(algoIdentifier.equals("1")){
-				JSONObject jo = new JSONObject();
-				JSONArray jArr = new JSONArray();
-				ArrayList lst = new ArrayList();
-				System.out.println("in algo = 1");
-				Iterator<Entry<Integer, Double[]>> it = HoneyBeeAlgorithm.getInstance().getReqCost().entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry<Integer, Double[]> pair = (Map.Entry<Integer, Double[]>)it.next();
-					if(pair.getKey()==Integer.parseInt(reqNo)){
-						Double[] reqVals=new Double[6];
-						reqVals=pair.getValue();
-						
-						jArr.add(Integer.parseInt(reqNo));
-						jArr.add(reqVals[1]);
-						jArr.add(reqVals[2]);
-						jArr.add(reqVals[3]);
-						jArr.add(reqVals[4]);
-						jArr.add(reqVals[5].intValue());
-						break;
-					}
-				}
-				jo.put("ReqNoCost", jArr);
-				System.out.println("##reqNoCost##: "+jo);
-				return jo.toString();
-			}else if(algoIdentifier.equals("2")){
-				JSONObject jo = new JSONObject();
-				JSONArray jArr = new JSONArray();
-				ArrayList lst = new ArrayList();
-				System.out.println("in algo = 2");
-				Iterator<Entry<Integer, Double[]>> it = AntAlgorithm.getInstance().getReqCost().entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry<Integer, Double[]> pair = (Map.Entry<Integer, Double[]>)it.next();
-					if(pair.getKey()==Integer.parseInt(reqNo)){
-						Double[] reqVals=new Double[6];
-						reqVals=pair.getValue();
-						
-						jArr.add(Integer.parseInt(reqNo));
-						jArr.add(reqVals[1]);
-						jArr.add(reqVals[2]);
-						jArr.add(reqVals[3]);
-						jArr.add(reqVals[4]);
-						jArr.add(reqVals[5].intValue());
-						break;
-					}
-				}
-				jo.put("ReqNoCost", jArr);
-				System.out.println("##reqNoCost##: "+jo);
-				return jo.toString();
-			}else if(algoIdentifier.equals("3")){
-				JSONObject jo = new JSONObject();
-				JSONArray jArr = new JSONArray();
-				ArrayList lst = new ArrayList();
-				System.out.println("in algo = 3");
-				Iterator<Entry<Integer, Double[]>> it = LocationAwareAlgorithm.getInstance().getReqCost().entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry<Integer, Double[]> pair = (Map.Entry<Integer, Double[]>)it.next();
-					if(pair.getKey()==Integer.parseInt(reqNo)){
-						Double[] reqVals=new Double[6];
-						reqVals=pair.getValue();
-						
-						jArr.add(Integer.parseInt(reqNo));
-						jArr.add(reqVals[1]);
-						jArr.add(reqVals[2]);
-						jArr.add(reqVals[3]);
-						jArr.add(reqVals[4]);
-						jArr.add(reqVals[5].intValue());
-						break;
-					}
-				}
-				jo.put("ReqNoCost", jArr);
-				System.out.println("##reqNoCost##: "+jo);
-				return jo.toString();
-			}else{
-				JSONObject jo = new JSONObject();
-				JSONArray jArr = new JSONArray();
-				ArrayList lst = new ArrayList();
-				System.out.println("in algo = 4");
-				Iterator<Entry<Integer, Double[]>> it = PSOAlgorithm.getInstance().getReqCost().entrySet().iterator();
-				while (it.hasNext()) {
-					Map.Entry<Integer, Double[]> pair = (Map.Entry<Integer, Double[]>)it.next();
-					if(pair.getKey()==Integer.parseInt(reqNo)){
-						Double[] reqVals=new Double[6];
-						reqVals=pair.getValue();
-						
-						jArr.add(Integer.parseInt(reqNo));
-						jArr.add(reqVals[1]);
-						jArr.add(reqVals[2]);
-						jArr.add(reqVals[3]);
-						jArr.add(reqVals[4]);
-						jArr.add(reqVals[5].intValue());
-						break;
-					}
-				}
-				jo.put("ReqNoCost", jArr);
-				System.out.println("##reqNoCost##: "+jo);
-				return jo.toString();
-			}			
 
-			
+	}
+
+	@GET
+	@Path("/graphs/reqNoReqTypeLoc")
+	public String getReqNoReqTypeLoc(@QueryParam ("algoIdentifier") String algoIdentifier){
+
+
+		if(algoIdentifier.equals("1")){
+			JSONObject jo = new JSONObject();
+			JSONArray jArr = new JSONArray();
+			ArrayList lst = new ArrayList();
+			Iterator<Entry<Integer, HashMap<Integer, List>>> it = HoneyBeeAlgorithm.getInstance().reqResTimeLogTable.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
+				HashMap hm=HoneyBeeAlgorithm.getInstance().reqResTimeLogTable.get(pair.getKey());
+				Iterator<Entry<Integer, HashMap<Integer, List>>> itr1 = hm.entrySet().iterator();
+				while (itr1.hasNext()) {
+					Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
+					ArrayList al = (ArrayList) hm.get(pair1.getKey());
+					lst = new ArrayList<>();
+					lst.add(pair.getKey());
+					lst.add(pair1.getKey());
+					lst.add(al.get(0));
+				}
+				jArr.add(lst);
+			}
+			jo.put("ReqNoReqTypeLoc", jArr);
+			System.out.println("##reqNoReqTypeLoc##: "+jo);
+			return jo.toString();
+		}else if(algoIdentifier.equals("2")){
+			JSONObject jo = new JSONObject();
+			JSONArray jArr = new JSONArray();
+			ArrayList lst = new ArrayList();
+			Iterator<Entry<Integer, HashMap<Integer, List>>> it = AntAlgorithm.getInstance().reqResTimeLogTable.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
+				HashMap hm=AntAlgorithm.getInstance().reqResTimeLogTable.get(pair.getKey());
+				Iterator<Entry<Integer, HashMap<Integer, List>>> itr1 = hm.entrySet().iterator();
+				while (itr1.hasNext()) {
+					Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
+					ArrayList al = (ArrayList) hm.get(pair1.getKey());
+					lst = new ArrayList<>();
+					lst.add(pair.getKey());
+					lst.add(pair1.getKey());
+					lst.add(al.get(0));
+				}
+				jArr.add(lst);
+			}	
+			jo.put("ReqNoReqTypeLoc", jArr);
+			System.out.println("##reqNoReqTypeLoc##: "+jo);
+			return jo.toString();
+		}else if(algoIdentifier.equals("3")){
+			JSONObject jo = new JSONObject();
+			JSONArray jArr = new JSONArray();
+			ArrayList lst = new ArrayList();
+			Iterator<Entry<Integer, HashMap<Integer, List>>> it = LocationAwareAlgorithm.getInstance().reqResTimeLogTable.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
+				HashMap hm=LocationAwareAlgorithm.getInstance().reqResTimeLogTable.get(pair.getKey());
+				Iterator<Entry<Integer, HashMap<Integer, List>>> itr1 = hm.entrySet().iterator();
+				while (itr1.hasNext()) {
+					Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
+					ArrayList al = (ArrayList) hm.get(pair1.getKey());
+					lst = new ArrayList<>();
+					lst.add(pair.getKey());
+					lst.add(pair1.getKey());
+					lst.add(al.get(0));
+				}
+				jArr.add(lst);
+			}	
+			jo.put("ReqNoReqTypeLoc", jArr);
+			System.out.println("##reqNoReqTypeLoc##: "+jo);
+			return jo.toString();
+		}else{
+			JSONObject jo = new JSONObject();
+			JSONArray jArr = new JSONArray();
+			ArrayList lst = new ArrayList();
+			Iterator<Entry<Integer, HashMap<Integer, List>>> it = PSOAlgorithm.getInstance().reqResTimeLogTable.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
+				HashMap hm=PSOAlgorithm.getInstance().reqResTimeLogTable.get(pair.getKey());
+				Iterator<Entry<Integer, HashMap<Integer, List>>> itr1 = hm.entrySet().iterator();
+				while (itr1.hasNext()) {
+					Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
+					ArrayList al = (ArrayList) hm.get(pair1.getKey());
+					lst = new ArrayList<>();
+					lst.add(pair.getKey());
+					lst.add(pair1.getKey());
+					lst.add(al.get(0));
+				}
+				jArr.add(lst);
+			}	
+			jo.put("ReqNoReqTypeLoc", jArr);
+			System.out.println("##reqNoReqTypeLoc##: "+jo);
+			return jo.toString();
+		}			
+
+
+	}
+
+
+	@GET
+	@Path("/graphs/locReqTypeAvgResTime")
+	public String getLocReqTypeAvgResTime(@QueryParam ("algoIdentifier") String algoIdentifier){
+
+
+		if(algoIdentifier.equals("1")){
+			JSONObject jo = new JSONObject();
+			JSONArray jArr = new JSONArray();
+			ArrayList lst = new ArrayList();
+			Iterator<Entry<Integer, HashMap<Integer, List>>> it = HoneyBeeAlgorithm.getInstance().locationAverageResponseTimeLogTable.entrySet().iterator();
+			System.out.println("***locationAverageResponseTimeLogTable*** "+HoneyBeeAlgorithm.getInstance().locationAverageResponseTimeLogTable);
+			while (it.hasNext()) {
+				Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
+				HashMap hm=HoneyBeeAlgorithm.getInstance().locationAverageResponseTimeLogTable.get(pair.getKey());
+				Iterator<Entry<Integer, HashMap<Integer, List>>> itr1 = hm.entrySet().iterator();
+				lst = new ArrayList<>();
+				while (itr1.hasNext()) {
+					Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
+					ArrayList al = (ArrayList) hm.get(pair1.getKey());
+					//						if(!al.isEmpty() && Double.parseDouble(al.get(0).toString())!=0){
+					lst.add(pair.getKey());
+					lst.add(pair1.getKey());
+					lst.add(al.get(0));
+					//						}
+					if(!lst.isEmpty()){
+						jArr.add(lst);
+						lst = new ArrayList<>();
+					}
+				}
+			}
+			jo.put("LocReqTypeAvgResTime", jArr);
+			System.out.println("##locReqTypeAvgResTime##: "+jo);
+			return jo.toString();
+		}else if(algoIdentifier.equals("2")){
+			JSONObject jo = new JSONObject();
+			JSONArray jArr = new JSONArray();
+			ArrayList lst = new ArrayList();
+			Iterator<Entry<Integer, HashMap<Integer, List>>> it = AntAlgorithm.getInstance().locationAverageResponseTimeLogTable.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
+				HashMap hm=AntAlgorithm.getInstance().locationAverageResponseTimeLogTable.get(pair.getKey());
+				Iterator<Entry<Integer, HashMap<Integer, List>>> itr1 = hm.entrySet().iterator();
+				lst = new ArrayList<>();
+				while (itr1.hasNext()) {
+					Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
+					ArrayList al = (ArrayList) hm.get(pair1.getKey());
+					//						if(!al.isEmpty() && Double.parseDouble(al.get(0).toString())!=0){
+					lst.add(pair.getKey());
+					lst.add(pair1.getKey());
+					lst.add(al.get(0));
+					//						}
+					if(!lst.isEmpty()){
+						jArr.add(lst);
+						lst = new ArrayList<>();
+					}
+				}
+			}
+			jo.put("LocReqTypeAvgResTime", jArr);
+			System.out.println("##locReqTypeAvgResTime##: "+jo);
+			return jo.toString();
+		}else if(algoIdentifier.equals("3")){
+			JSONObject jo = new JSONObject();
+			JSONArray jArr = new JSONArray();
+			ArrayList lst = new ArrayList();
+			Iterator<Entry<Integer, HashMap<Integer, List>>> it = LocationAwareAlgorithm.getInstance().locationAverageResponseTimeLogTable.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
+				HashMap hm=LocationAwareAlgorithm.getInstance().locationAverageResponseTimeLogTable.get(pair.getKey());
+				Iterator<Entry<Integer, HashMap<Integer, List>>> itr1 = hm.entrySet().iterator();
+				lst = new ArrayList<>();
+				while (itr1.hasNext()) {
+					Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
+					ArrayList al = (ArrayList) hm.get(pair1.getKey());
+					//						if(!al.isEmpty() && Double.parseDouble(al.get(0).toString())!=0){
+					lst.add(pair.getKey());
+					lst.add(pair1.getKey());
+					lst.add(al.get(0));
+					//						}
+					if(!lst.isEmpty()){
+						jArr.add(lst);
+						lst = new ArrayList<>();
+					}
+				}
+			}
+			jo.put("LocReqTypeAvgResTime", jArr);
+			System.out.println("##locReqTypeAvgResTime##: "+jo);
+			return jo.toString();			
+		}else{
+			JSONObject jo = new JSONObject();
+			JSONArray jArr = new JSONArray();
+			ArrayList lst = new ArrayList();
+			Iterator<Entry<Integer, HashMap<Integer, List>>> it = PSOAlgorithm.getInstance().locationAverageResponseTimeLogTable.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, HashMap<Integer, List>> pair = (Map.Entry<Integer, HashMap<Integer, List>>)it.next();
+				HashMap hm=PSOAlgorithm.getInstance().locationAverageResponseTimeLogTable.get(pair.getKey());
+				Iterator<Entry<Integer, HashMap<Integer, List>>> itr1 = hm.entrySet().iterator();
+				lst = new ArrayList<>();
+				while (itr1.hasNext()) {
+					Map.Entry<Integer, HashMap<Integer, List>> pair1 = (Map.Entry<Integer, HashMap<Integer, List>>)itr1.next();
+					ArrayList al = (ArrayList) hm.get(pair1.getKey());
+					//						if(!al.isEmpty() && Double.parseDouble(al.get(0).toString())!=0){
+					lst.add(pair.getKey());
+					lst.add(pair1.getKey());
+					lst.add(al.get(0));
+					//						}
+					if(!lst.isEmpty()){
+						jArr.add(lst);
+						lst = new ArrayList<>();
+					}
+				}
+			}
+			jo.put("LocReqTypeAvgResTime", jArr);
+			System.out.println("##locReqTypeAvgResTime##: "+jo);
+			return jo.toString();
 		}
-	
+
+
+	}
+
+	//cost graphs
+	@GET
+	@Path("/graphs/reqNoCost")
+	public String getReqNoCost(@QueryParam ("algoIdentifier") String algoIdentifier, @QueryParam ("reqNo") String reqNo){
+
+
+		if(algoIdentifier.equals("1")){
+			JSONObject jo = new JSONObject();
+			JSONArray jArr = new JSONArray();
+			ArrayList lst = new ArrayList();
+			System.out.println("in algo = 1");
+			Iterator<Entry<Integer, Double[]>> it = HoneyBeeAlgorithm.getInstance().getReqCost().entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, Double[]> pair = (Map.Entry<Integer, Double[]>)it.next();
+				if(pair.getKey()==Integer.parseInt(reqNo)){
+					Double[] reqVals=new Double[6];
+					reqVals=pair.getValue();
+
+					jArr.add(Integer.parseInt(reqNo));
+					jArr.add(reqVals[1]);
+					jArr.add(reqVals[2]);
+					jArr.add(reqVals[3]);
+					jArr.add(reqVals[4]);
+					jArr.add(reqVals[5].intValue());
+					break;
+				}
+			}
+			jo.put("ReqNoCost", jArr);
+			System.out.println("##reqNoCost##: "+jo);
+			return jo.toString();
+		}else if(algoIdentifier.equals("2")){
+			JSONObject jo = new JSONObject();
+			JSONArray jArr = new JSONArray();
+			ArrayList lst = new ArrayList();
+			System.out.println("in algo = 2");
+			Iterator<Entry<Integer, Double[]>> it = AntAlgorithm.getInstance().getReqCost().entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, Double[]> pair = (Map.Entry<Integer, Double[]>)it.next();
+				if(pair.getKey()==Integer.parseInt(reqNo)){
+					Double[] reqVals=new Double[6];
+					reqVals=pair.getValue();
+
+					jArr.add(Integer.parseInt(reqNo));
+					jArr.add(reqVals[1]);
+					jArr.add(reqVals[2]);
+					jArr.add(reqVals[3]);
+					jArr.add(reqVals[4]);
+					jArr.add(reqVals[5].intValue());
+					break;
+				}
+			}
+			jo.put("ReqNoCost", jArr);
+			System.out.println("##reqNoCost##: "+jo);
+			return jo.toString();
+		}else if(algoIdentifier.equals("3")){
+			JSONObject jo = new JSONObject();
+			JSONArray jArr = new JSONArray();
+			ArrayList lst = new ArrayList();
+			System.out.println("in algo = 3");
+			Iterator<Entry<Integer, Double[]>> it = LocationAwareAlgorithm.getInstance().getReqCost().entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, Double[]> pair = (Map.Entry<Integer, Double[]>)it.next();
+				if(pair.getKey()==Integer.parseInt(reqNo)){
+					Double[] reqVals=new Double[6];
+					reqVals=pair.getValue();
+
+					jArr.add(Integer.parseInt(reqNo));
+					jArr.add(reqVals[1]);
+					jArr.add(reqVals[2]);
+					jArr.add(reqVals[3]);
+					jArr.add(reqVals[4]);
+					jArr.add(reqVals[5].intValue());
+					break;
+				}
+			}
+			jo.put("ReqNoCost", jArr);
+			System.out.println("##reqNoCost##: "+jo);
+			return jo.toString();
+		}else{
+			JSONObject jo = new JSONObject();
+			JSONArray jArr = new JSONArray();
+			ArrayList lst = new ArrayList();
+			System.out.println("in algo = 4");
+			Iterator<Entry<Integer, Double[]>> it = PSOAlgorithm.getInstance().getReqCost().entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, Double[]> pair = (Map.Entry<Integer, Double[]>)it.next();
+				if(pair.getKey()==Integer.parseInt(reqNo)){
+					Double[] reqVals=new Double[6];
+					reqVals=pair.getValue();
+
+					jArr.add(Integer.parseInt(reqNo));
+					jArr.add(reqVals[1]);
+					jArr.add(reqVals[2]);
+					jArr.add(reqVals[3]);
+					jArr.add(reqVals[4]);
+					jArr.add(reqVals[5].intValue());
+					break;
+				}
+			}
+			jo.put("ReqNoCost", jArr);
+			System.out.println("##reqNoCost##: "+jo);
+			return jo.toString();
+		}			
+	}
+
+	//current resource utilization graphs
+	@GET
+	@Path("/graphs/currResUtil")
+	public String getResourceUtilization(@QueryParam ("algoIdentifier") String algoIdentifier, @QueryParam ("locationNo") String locationNo){
+
+		if(algoIdentifier.equals("1")){
+			JSONObject jo = new JSONObject();
+			JSONArray jArr = new JSONArray();
+			ArrayList lst = new ArrayList();
+			System.out.println("in algo = 1");
+			Iterator<Entry<Integer, Double[]>> it = HoneyBeeConstants.currentUsage.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, Double[]> pair = (Map.Entry<Integer, Double[]>)it.next();
+				if(pair.getKey()==Integer.parseInt(locationNo)){
+					Double[] currVals=new Double[3];
+					currVals=pair.getValue();
+
+					jArr.add(currVals[0]);
+					jArr.add(currVals[1]);
+					jArr.add(currVals[2]);
+					
+					break;
+				}
+			}
+			jo.put("ResourceUtil", jArr);
+			System.out.println("##currResUtil##: "+jo);
+			return jo.toString();
+		}else if(algoIdentifier.equals("2")){
+			JSONObject jo = new JSONObject();
+			JSONArray jArr = new JSONArray();
+			ArrayList lst = new ArrayList();
+			System.out.println("in algo = 1");
+			Iterator<Entry<Integer, Double[]>> it = AntConstants.currentUsage.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, Double[]> pair = (Map.Entry<Integer, Double[]>)it.next();
+				if(pair.getKey()==Integer.parseInt(locationNo)){
+					Double[] currVals=new Double[3];
+					currVals=pair.getValue();
+
+					jArr.add(currVals[0]);
+					jArr.add(currVals[1]);
+					jArr.add(currVals[2]);
+					
+					break;
+				}
+			}
+			jo.put("ResourceUtil", jArr);
+			System.out.println("##currResUtil##: "+jo);
+			return jo.toString();
+		}else if(algoIdentifier.equals("3")){
+			JSONObject jo = new JSONObject();
+			JSONArray jArr = new JSONArray();
+			ArrayList lst = new ArrayList();
+			System.out.println("in algo = 1");
+			Iterator<Entry<Integer, Double[]>> it = LocationAwareConstants.currentUsage.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, Double[]> pair = (Map.Entry<Integer, Double[]>)it.next();
+				if(pair.getKey()==Integer.parseInt(locationNo)){
+					Double[] currVals=new Double[3];
+					currVals=pair.getValue();
+
+					jArr.add(currVals[0]);
+					jArr.add(currVals[1]);
+					jArr.add(currVals[2]);
+					
+					break;
+				}
+			}
+			jo.put("ResourceUtil", jArr);
+			System.out.println("##currResUtil##: "+jo);
+			return jo.toString();
+		}else{
+			JSONObject jo = new JSONObject();
+			JSONArray jArr = new JSONArray();
+			ArrayList lst = new ArrayList();
+			System.out.println("in algo = 1");
+			Iterator<Entry<Integer, Double[]>> it = PSOConstants.currentUsage.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, Double[]> pair = (Map.Entry<Integer, Double[]>)it.next();
+				if(pair.getKey()==Integer.parseInt(locationNo)){
+					Double[] currVals=new Double[3];
+					currVals=pair.getValue();
+
+					jArr.add(currVals[0]);
+					jArr.add(currVals[1]);
+					jArr.add(currVals[2]);
+					
+					break;
+				}
+			}
+			jo.put("ResourceUtil", jArr);
+			System.out.println("##currResUtil##: "+jo);
+			return jo.toString();
+		}			
+	}		
+
 
 }

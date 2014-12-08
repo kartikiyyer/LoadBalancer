@@ -209,6 +209,13 @@ public class LocationAwareAlgorithm
 		this.currentCPUState.put(location, this.currentCPUState.get(location) + currentCPUState);
 		this.currentStorageState.put(location, this.currentStorageState.get(location) + currentStorageState);
 		this.currentRAMState.put(location, this.currentRAMState.get(location) + currentRAMState);
+		
+		Double[] currUsage=new Double[3];
+		currUsage[0]=this.currentCPUState.get(location);
+		currUsage[1]=this.currentStorageState.get(location);
+		currUsage[2]=this.currentRAMState.get(location);
+		LocationAwareConstants.currentUsage.put(location, currUsage);
+		
 	}
 
 	public void insertIntoReferenceTable(int vm,double cpu,double hd,double ram)
@@ -227,6 +234,12 @@ public class LocationAwareAlgorithm
 		currentStorageState.put(vm, currentStorageState.get(vm)-hd);
 		currentRAMState.put(vm, currentRAMState.get(vm)- ram);
 		System.out.println("After Updating: "+currentCPUState.get(vm)+" "+currentCPUState.get(vm)+" "+currentCPUState.get(vm));
+		
+		Double[] currUsage=new Double[3];
+		currUsage[0]=this.currentCPUState.get(location);
+		currUsage[1]=this.currentStorageState.get(location);
+		currUsage[2]=this.currentRAMState.get(location);
+		LocationAwareConstants.currentUsage.put(location, currUsage);
 
 	}
 	public int calculateDistance(double userLat, double userLng,

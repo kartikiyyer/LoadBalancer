@@ -22,6 +22,10 @@ public class PSOConstants {
 	private HashMap<Integer,Integer> noOfLocationsWrtZone = new HashMap<Integer,Integer>();
 	private HashMap<Integer, int[]> zoneLocations = new HashMap<Integer, int[]>();
 	//
+	
+	//{location->[cpu,hd,ram]}
+	public static HashMap<Integer, Double[]> currentUsage = new HashMap<Integer, Double[]>();	
+	
 	private PSOConstants() {
 		
 		

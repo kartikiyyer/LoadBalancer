@@ -50,6 +50,9 @@ public class LocationAwareConstants {
 	public static HashMap<Integer, Double[]> locationCost = new HashMap<Integer, Double[]>();
 	public static HashMap<Integer, Double[]> costHM = new HashMap<Integer, Double[]>();
 	
+	//{location->[cpu,hd,ram]}
+	public static HashMap<Integer, Double[]> currentUsage = new HashMap<Integer, Double[]>();
+	
 	//Double laLn2[] = new Double[]{37.3393860,-121.8949550};
 	private static LocationAwareConstants locationAwareConstants;
 	private LocationAwareConstants()

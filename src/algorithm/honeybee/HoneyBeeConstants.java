@@ -18,12 +18,15 @@ public class HoneyBeeConstants {
 	private HashMap<Integer, Double> locationMaxCPU = new HashMap<Integer, Double>();
 	private HashMap<Integer, Double> locationMaxHD = new HashMap<Integer, Double>();
 	private HashMap<Integer, Double> locationMaxRAM = new HashMap<Integer, Double>();
-	
+		
 	private HashMap<Integer,Integer> noOfLocationsWrtZone = new HashMap<Integer,Integer>();
 	private HashMap<Integer, int[]> zoneLocations = new HashMap<Integer, int[]>();
 	
 	public static HashMap<Integer, Double[]> locationCost = new HashMap<Integer, Double[]>();
 	public static HashMap<Integer, Double[]> costHM = new HashMap<Integer, Double[]>();
+	
+	//{location->[cpu,hd,ram]}
+	public static HashMap<Integer, Double[]> currentUsage = new HashMap<Integer, Double[]>();
 	
 	private static HoneyBeeConstants honeybeeConstants;
 	
@@ -250,12 +253,24 @@ public class HoneyBeeConstants {
 		this.locationCPU.put(location, this.locationCPU.get(location) + locationCPU);
 		this.locationHD.put(location, this.locationHD.get(location) + locationHD);
 		this.locationRAM.put(location, this.locationRAM.get(location) + locationRAM);
+		
+		Double[] currUsage=new Double[3];
+		currUsage[0]=this.locationCPU.get(location);
+		currUsage[1]=this.locationHD.get(location);
+		currUsage[2]=this.locationRAM.get(location);
+		currentUsage.put(location, currUsage);
 	}
 	
 	public void decreaseLocationDetails(int location, double locationCPU, double locationHD, double locationRAM) {
 		this.locationCPU.put(location, this.locationCPU.get(location) - locationCPU);
 		this.locationHD.put(location, this.locationHD.get(location) - locationHD);
 		this.locationRAM.put(location, this.locationRAM.get(location) - locationRAM);
+		
+		Double[] currUsage=new Double[3];
+		currUsage[0]=this.locationCPU.get(location);
+		currUsage[1]=this.locationHD.get(location);
+		currUsage[2]=this.locationRAM.get(location);
+		currentUsage.put(location, currUsage);
 	}
 	
 	public void increaseLocationMaxDetails(int location, double locationCPU, double locationHD, double locationRAM) {
