@@ -9,7 +9,7 @@ public class AntConstants {
 	private double pheromone = 0.5;
 	private double deltaPheromone;
 	private HashMap<Integer, String> locations = new HashMap<Integer, String>();
-	private String server = "ubuntu-mc-serve.cloudapp.net";
+	private String server = "ubuntu-mc-1-cmpe281.cloudapp.net";
 	//private String server = "localhost";
 	private HashMap<Integer, Integer> locationRequestCount = new HashMap<Integer, Integer>();
 	

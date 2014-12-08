@@ -34,7 +34,7 @@ public class LocationAwareConstants {
 	
 	private int noOfLocations;
 	private HashMap<Integer, String> locations = new HashMap<Integer, String>();
-	private String server = "ubuntu-mc-serve.cloudapp.net";
+	private String server = "ubuntu-mc-1-cmpe281.cloudapp.net";
 	private HashMap<Integer, Integer> locationRequestCount = new HashMap<Integer, Integer>();
 	
 	private HashMap<Integer, Double> locationCPU = new HashMap<Integer, Double>();

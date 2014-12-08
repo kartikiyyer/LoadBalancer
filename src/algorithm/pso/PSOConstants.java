@@ -5,7 +5,7 @@ import java.util.HashMap;
 public class PSOConstants {
 	private int noOfLocations;
 	private HashMap<Integer, String> locations = new HashMap<Integer, String>();
-	private String server = "ubuntu-mc-server";
+	private String server = "ubuntu-mc-1-cmpe281.cloudapp.net";
 	private HashMap<Integer, Integer> locationRequestCount = new HashMap<Integer, Integer>();
 	public HashMap<Integer, Double[]> geoLocation = new HashMap<Integer,Double[]>();
 	private HashMap<Integer, Double> locationCPU = new HashMap<Integer, Double>();
