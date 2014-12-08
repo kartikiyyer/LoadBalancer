@@ -261,15 +261,19 @@ public class HoneyBeeAlgorithm{
 						int[] currVal = tempZoneWiseLocNo.get(zone);
 						
 //						for(int val=1;val<=HoneyBeeConstants.getInstance().getNoOfLocations();val++){
-						for(int val=currVal[0];val<currVal[0]+currVal.length;val++){
+						/*for(int val=currVal[0];val<currVal[0]+currVal.length;val++){
 							System.out.println("average response time for location "+val+"  "+locationAverageResponseTimeLogTable.get(val).get(requestType).get(0));
 							//TODO check this! bcoz without response sampleHM will always have 0.0 as key for each loc..
 							//so it will replace the entry with 0.0 every time with the new value loc which also has key 0.0
 							// for non 0.0 it will work fine!
 							sampleHM.put(Double.parseDouble(locationAverageResponseTimeLogTable.get(val).get(requestType).get(0).toString()), val);
-						}
-						TreeMap<Double, Integer> treeMap = new TreeMap<Double, Integer>(sampleHM);
-						location=treeMap.get(treeMap.firstKey());
+						}*/
+						//TreeMap<Double, Integer> treeMap = new TreeMap<Double, Integer>(sampleHM);
+						//location=treeMap.get(treeMap.firstKey());
+						
+						//TODO new code--remove if required
+						location = getRandom(currVal);
+						
 						return location;
 					}
 				
@@ -280,6 +284,10 @@ public class HoneyBeeAlgorithm{
 		
 	}
 	
+	public static int getRandom(int[] array) {
+	    int rnd = new Random().nextInt(array.length);
+	    return array[rnd];
+	}
 	
 	/*public void increaseFitnessValueOfLocation(int location) {
 		

@@ -26,57 +26,57 @@ public class PSOConstants {
 		
 		
 		Double[] cost = new Double[3];
-		cost[0]=0.0001;
-		cost[1]=0.00008;
-		cost[2]=0.00019;
+		cost[0]=0.018;
+		cost[1]=0.003;
+		cost[2]=0.005;
 		locationCost.put(1, cost);
 		
 		cost = new Double[3];
-		cost[0]=0.0002;
-		cost[1]=0.0001;
-		cost[2]=0.00015;
+		cost[0]=0.044;
+		cost[1]=0.006;
+		cost[2]=0.008;
 		locationCost.put(2, cost);
 		
 		cost = new Double[3];
-		cost[0]=0.0001;
-		cost[1]=0.00008;
-		cost[2]=0.00029;
+		cost[0]=0.088;
+		cost[1]=0.010;
+		cost[2]=0.029;
 		locationCost.put(3, cost);
 		
 		cost = new Double[3];
-		cost[0]=0.0002;
-		cost[1]=0.0001;
-		cost[2]=0.00015;
+		cost[0]=0.018;
+		cost[1]=0.003;
+		cost[2]=0.005;
 		locationCost.put(4, cost);
 		
 		cost = new Double[3];
-		cost[0]=0.00015;
-		cost[1]=0.00019;
-		cost[2]=0.00019;
+		cost[0]=0.044;
+		cost[1]=0.006;
+		cost[2]=0.008;
 		locationCost.put(5, cost);
 	
 		cost = new Double[3];
-		cost[0]=0.00019;
-		cost[1]=0.00016;
-		cost[2]=0.0002;
+		cost[0]=0.088;
+		cost[1]=0.010;
+		cost[2]=0.029;
 		locationCost.put(6, cost);
 		
 		cost = new Double[3];
-		cost[0]=0.0002;
-		cost[1]=0.0001;
-		cost[2]=0.00029;
+		cost[0]=0.018;
+		cost[1]=0.003;
+		cost[2]=0.005;
 		locationCost.put(7, cost);
 		
 		cost = new Double[3];
-		cost[0]=0.0002;
-		cost[1]=0.00008;
-		cost[2]=0.00016;
+		cost[0]=0.044;
+		cost[1]=0.006;
+		cost[2]=0.008;
 		locationCost.put(8, cost);
 		
 		cost = new Double[3];
-		cost[0]=0.0001;
-		cost[1]=0.0001;
-		cost[2]=0.00015;
+		cost[0]=0.088;
+		cost[1]=0.010;
+		cost[2]=0.029;
 		locationCost.put(9, cost);
 			
 		
